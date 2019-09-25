@@ -9,6 +9,7 @@ void exec_hook_pre(state_t *state){
 int exec_hook_post(state_t *state){
   // TODO: check whether the program should exit
   info("Finished.");
+  return 0;
 }
 
 void exec_stepi(state_t *state){

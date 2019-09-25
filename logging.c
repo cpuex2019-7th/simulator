@@ -2,7 +2,7 @@
 #include <stdarg.h>
 #include "logging.h"
 
-static enum logging_level_t log_level;
+static enum logging_level_t log_level = ERROR;
 
 void set_logging_level(enum logging_level_t _log_level){
   log_level = _log_level;

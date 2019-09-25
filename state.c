@@ -19,7 +19,7 @@ void init_state(state_t *state, int argc, char* argv[]){
   state->ofp = NULL;
 
   // process the arguments
-  for (int i=0; i < argc; i++){
+  for (int i=1; i < argc; i++){
     if (strcmp(argv[i], "-i")==0){
       // nop
       // for future use
@@ -55,5 +55,11 @@ void init_state(state_t *state, int argc, char* argv[]){
         exit(1);
       }
     }
+  }
+
+  // validate
+  if (state->pfp == NULL){
+    error("No executable was specified.");
+    exit(1);
   }
 }
