@@ -32,7 +32,13 @@ int exec_hook_post(state_t *state){
 }
 
 void exec_stepi(state_t *state){
-  instr_t *instr = fetch_and_decode_once(state);  
+  // fetch & decode
+  instr_t *instr = fetch_and_decode_once(state);
+
+  // exec & write
+  // TODO
+
+  // finalize
   free(instr);
 }
 
