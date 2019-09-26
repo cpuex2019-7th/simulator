@@ -1,6 +1,18 @@
 #include <string.h>
 #include "state.h"
 #include "logging.h"
+#include "exec.h"
+
+
+void write_reg(state_t *state, int dest, int value){
+  if (dest == 0){
+    debug("Someone tried to write a value to zero register(x0). It is prohibited.");
+    exit_if_strict_mode(1);
+  } else {
+    state->reg[dest] = value;
+  }
+}
+
 
 void init_state(state_t *state, int argc, char* argv[]){
   state->pfp = NULL;
@@ -30,6 +42,8 @@ void init_state(state_t *state, int argc, char* argv[]){
       set_logging_level(DEBUG);
     } else if (strcmp(argv[i], "--info")==0){
       set_logging_level(INFO);
+    } else if (strcmp(argv[i], "--strict")==0){
+      set_execution_mode(1); // set the execution strict
     } else if (strcmp(argv[i], "--breakpoint") == 0
                || strcmp(argv[i], "-b") == 0){
       if (i == argc-1){

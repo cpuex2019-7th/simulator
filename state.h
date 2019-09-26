@@ -17,7 +17,7 @@ typedef struct {
   // basic structure
   int reg[32];
   float freg[32];
-  uint32_t mem[MEM_SIZE];
+  uint8_t mem[MEM_SIZE];
   
   // for debug
   blist_t *blist;
@@ -27,3 +27,4 @@ typedef struct {
 } state_t;
 
 void init_state(state_t *state, int, char**);
+void write_reg(state_t*, int, int);

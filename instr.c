@@ -3,7 +3,7 @@
 
 #include "instr.h"
 #include "state.h"
-
+  
 void set_r_instr(int from, instr_r_t *to){
   to->funct7 = from >> 25;
   to->rs2 = (from >> 20) & 0b11111;
@@ -17,8 +17,8 @@ void set_i_instr(int from, instr_i_t *to){
   to->rs1 = (from >> 15) & 0b11111;
   to->funct3 = (from >> 12) & 0b111;
   to->rd = (from >> 7) & 0b11111;
-   if (to->imm & 0x800)
-     to->imm = to->imm | 0xFFFFF000;
+  
+  to->imm = SIGNEXT(to->imm, 11);
 
 }
 
@@ -27,8 +27,8 @@ void set_s_instr(int from, instr_s_t *to){
   to->rs2 = (from >> 19) & 0b11111;
   to->rs1 = (from >> 14) & 0b11111;
   to->funct3 = (from >> 11) & 0b111;
-  if (to->imm  & 0x800)
-    to->imm = to->imm | 0xFFFFF000;
+
+  to->imm = SIGNEXT(to->imm, 11);
 }
 
 void set_b_instr(int from, instr_b_t *to){
@@ -36,20 +36,20 @@ void set_b_instr(int from, instr_b_t *to){
   to->rs2 = (from >> 19) & 0b11111;
   to->rs1 = (from >> 14) & 0b11111;
   to->funct3 = (from >> 11) & 0b111;
-  if (to->imm & 0x1000)
-    to->imm = to->imm | 0xFFFFE000;
+
+  to->imm = SIGNEXT(to->imm, 12);
 }
 
 void set_u_instr(int from, instr_u_t *to){
   to->imm = from & 0xFFFFF000;
-  to->rd1 = (from >> 6) & 0b11111;
+  to->rd = (from >> 7) & 0b11111;
 }
 
 void set_j_instr(int from, instr_j_t *to){
   to->imm = (from & 0x80000000) >> 11 | (from & 0xFF000) | (from & 0x100000) >> 9 | (from & 0x7FE00000) >> 20;
-  to->rd1 = (from >> 6) & 0b11111;
-  if (to->imm & 0x100000)
-    to->imm = to->imm | 0xFFE00000;
+  to->rd = (from >> 7) & 0b11111;
+
+  to->imm = SIGNEXT(to->imm, 20);
 }
 
 // use fp for future

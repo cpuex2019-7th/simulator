@@ -94,13 +94,13 @@ typedef struct {
 
 typedef struct {  
   uint32_t imm : 32;
-  uint8_t rd1 : 5;
+  uint8_t rd : 5;
   instr_kind_t op : 7;
 } instr_u_t;
 
 typedef struct {  
   uint32_t imm : 20;
-  uint8_t rd1 : 5;
+  uint8_t rd : 5;
   instr_kind_t op : 7;
 } instr_j_t;
 
@@ -110,3 +110,6 @@ typedef struct {
 } instr_t;
 
 instr_t *fetch_and_decode_once(state_t*);
+
+#define SIGNEXT(v, sb) ((v) | (((v) & (1 << (sb))) ? ~((1 << (sb))-1) : 0))
+
