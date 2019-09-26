@@ -59,6 +59,9 @@ void exec_stepi(state_t *state){
   
   // exec & write
   switch(instr->op){
+    /////////
+    // rv32i
+    /////////
   case LUI:
     state->reg[((instr_u_t *) instr)->rd] = ((instr_u_t *) instr)->imm;
     break;
@@ -171,10 +174,10 @@ void exec_stepi(state_t *state){
     state->reg[((instr_i_t *) instr)->rd] = sra(state->reg[((instr_i_t *) instr)->rs1], (((instr_i_t *) instr)->imm & 0b11111));
     break;
   case ADD:
-    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] + ((instr_r_t *) instr)->rs2;
+    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] + state->reg[((instr_r_t *) instr)->rs2];
     break;
   case SUB:
-    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] - ((instr_r_t *) instr)->rs2;
+    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] - state->reg[((instr_r_t *) instr)->rs2];
     break;
   case SLL:
     state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] << state->reg[((instr_r_t *) instr)->rs2];
@@ -186,47 +189,61 @@ void exec_stepi(state_t *state){
     state->reg[((instr_r_t *) instr)->rd] = ((unsigned)state->reg[((instr_r_t *) instr)->rs1]) < ((unsigned)state->reg[((instr_r_t *) instr)->rs2]) ? 1 : 0;
     break;
   case XOR:
-    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] ^ ((instr_r_t *) instr)->rs2;
+    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] ^ state->reg[((instr_r_t *) instr)->rs2];
     break;
   case SRL:
-    state->reg[((instr_r_t *) instr)->rd] = srl(state->reg[((instr_r_t *) instr)->rs1], ((instr_r_t *) instr)->rs2);
+    state->reg[((instr_r_t *) instr)->rd] = srl(state->reg[((instr_r_t *) instr)->rs1], state->reg[((instr_r_t *) instr)->rs2]);
     break;
   case SRA:
-    state->reg[((instr_r_t *) instr)->rd] = sra(state->reg[((instr_r_t *) instr)->rs1], ((instr_r_t *) instr)->rs2);
+    state->reg[((instr_r_t *) instr)->rd] = sra(state->reg[((instr_r_t *) instr)->rs1], state->reg[((instr_r_t *) instr)->rs2]);
     break;
   case OR:
-    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] | ((instr_r_t *) instr)->rs2;
+    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] | state->reg[((instr_r_t *) instr)->rs2];
     break;
   case AND:
-    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] & ((instr_r_t *) instr)->rs2;
+    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] & state->reg[((instr_r_t *) instr)->rs2];
     break;
   case FENCE:
     // TODO
     break;
-    // rv32im
+    
+    /////////
+    // rv32m
+    /////////
+    // seems to be buggy due to my poor knowledge on C :cry:
+    // tests should be prepared soon :-)
   case MUL:
-    // TODO
+    state->reg[((instr_r_t *) instr)->rd] = (((int64_t) state->reg[((instr_r_t *) instr)->rs1] * (int64_t) state->reg[((instr_r_t *) instr)->rs2])) & 0xFFFFFFFF;
     break;
   case MULH:
-    // TODO
+    state->reg[((instr_r_t *) instr)->rd] =
+      ((((int64_t) state->reg[((instr_r_t *) instr)->rs1]
+         * (int64_t) state->reg[((instr_r_t *) instr)->rs2]))
+       & (((int64_t) 0xFFFFFFFF) << 32)) >> 32;
     break;
   case MULHSU:
-    // TODO
+    state->reg[((instr_r_t *) instr)->rd] =
+      ((((int64_t) state->reg[((instr_r_t *) instr)->rs1]
+         * (uint64_t) state->reg[((instr_r_t *) instr)->rs2]))
+       & (((uint64_t) 0xFFFFFFFF) << 32)) >> 32;
     break;
   case MULHU:
-    // TODO
+    state->reg[((instr_r_t *) instr)->rd] =
+      ((((uint64_t) state->reg[((instr_r_t *) instr)->rs1]
+         * (uint64_t) state->reg[((instr_r_t *) instr)->rs2]))
+       & (((uint64_t) 0xFFFFFFFF) << 32)) >> 32;
     break;
   case DIV:
-    // TODO
+    state->reg[((instr_r_t *) instr)->rd] = (((int32_t) state->reg[((instr_r_t *) instr)->rs1] / (int32_t) state->reg[((instr_r_t *) instr)->rs2]));
     break;
   case DIVU:
-    // TODO
+    state->reg[((instr_r_t *) instr)->rd] = (((uint32_t) state->reg[((instr_r_t *) instr)->rs1] / (uint32_t) state->reg[((instr_r_t *) instr)->rs2]));
     break;
   case REM:
-    // TODO
+    state->reg[((instr_r_t *) instr)->rd] = (((int32_t) state->reg[((instr_r_t *) instr)->rs1] % (int32_t) state->reg[((instr_r_t *) instr)->rs2]));
     break;
   case REMU:
-    // TODO
+    state->reg[((instr_r_t *) instr)->rd] = (((uint32_t) state->reg[((instr_r_t *) instr)->rs1] % (uint32_t) state->reg[((instr_r_t *) instr)->rs2]));
     break;    
   default:    
     error("unimplemented instruction: %d", instr->op);
