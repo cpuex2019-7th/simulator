@@ -8,6 +8,10 @@ void set_logging_level(enum logging_level_t _log_level){
   log_level = _log_level;
 }
 
+enum logging_level_t get_logging_level(){
+  return log_level;
+}
+
 void error(const char *fmt, ...) {
   va_list ap;
   va_start(ap, fmt);
@@ -26,6 +30,15 @@ void debug(const char *fmt, ...) {
     printf("[x] ");
     vprintf(fmt, ap);
     printf("\n");
+  }
+  va_end(ap);
+}
+
+void debug_raw(const char *fmt, ...) {
+  va_list ap;
+  va_start(ap, fmt);
+  if (log_level <= DEBUG){
+    vprintf(fmt, ap);
   }
   va_end(ap);
 }

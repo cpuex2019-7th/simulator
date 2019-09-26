@@ -64,7 +64,7 @@ instr_t *fetch_and_decode_once(state_t *state){
   
   // TODO: rv32c
   int iraw = *(int*)buf;
-  switch (iraw & 0b11111111){
+  switch (iraw & 0b1111111){
     // rv32i
   case 0b0110111: // LUI
     set_u_instr(iraw, (instr_u_t*) instr);
@@ -270,7 +270,7 @@ instr_t *fetch_and_decode_once(state_t *state){
   case 0b1110011:
     // TODO: rv32i Others
   default:
-    instr->op = UNKNOWN;
+    instr->op = INSTR_UNKNOWN;
     break;
   }  
   return instr;

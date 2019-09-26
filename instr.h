@@ -57,7 +57,11 @@ typedef enum {
               DIVU,
               REM,
               REMU,
-              UNKNOWN
+              
+              /////////
+              // for debug
+              /////////
+              INSTR_UNKNOWN
 } instr_kind_t;
 
 typedef struct {  

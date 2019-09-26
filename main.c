@@ -6,6 +6,7 @@
 #include "instr.h"
 #include "logging.h"
 #include "exec.h"
+#include "debugger.h"
 
 int main(int argc, char* argv[]){
   state_t state;
@@ -19,6 +20,9 @@ int main(int argc, char* argv[]){
     if(exec_hook_post(&state) == 1)
       break;
   }
+
+  // for debug
+  show_state(&state);
 
   // finalize
   if(state.pfp != NULL)

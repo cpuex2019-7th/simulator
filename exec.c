@@ -244,7 +244,11 @@ void exec_stepi(state_t *state){
     break;
   case REMU:
     state->reg[((instr_r_t *) instr)->rd] = (((uint32_t) state->reg[((instr_r_t *) instr)->rs1] % (uint32_t) state->reg[((instr_r_t *) instr)->rs2]));
-    break;    
+    break;
+
+    /////////
+    // :thinking_face:
+    /////////
   default:    
     error("unimplemented instruction: %d", instr->op);
     exit_if_strict_mode(1);
