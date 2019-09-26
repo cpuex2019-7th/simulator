@@ -14,7 +14,7 @@ int main(int argc, char* argv[]){
   init_state(&state, argc, argv);
 
   // main execution loop
-  while(1){
+  while(state.is_running){
     exec_hook_pre(&state);    
     exec_stepi(&state);
     if(exec_hook_post(&state) == 1)

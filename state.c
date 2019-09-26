@@ -17,6 +17,7 @@ void write_reg(state_t *state, int dest, int value){
 void init_state(state_t *state, int argc, char* argv[]){
   state->pfp = NULL;
   state->pc = 0;
+  state->is_running = 1;
   
   for(int i=0; i<32; i++){    
     state->reg[i] = 0;

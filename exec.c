@@ -34,7 +34,7 @@ int is_here_breakpoint(state_t *state){
 
 void exec_hook_pre(state_t *state){
   // TODO: process breakpoint
-  info("Executing next instruction ...");
+  info("Executing next instruction ... (PC=%08x)", state->pc);
 
   if(is_step_execution_enabled == 1
      || is_here_breakpoint(state) == 1){
@@ -43,8 +43,12 @@ void exec_hook_pre(state_t *state){
 }
 
 int exec_hook_post(state_t *state){
-  // TODO: check whether the program should exit
-  info("Finished.");
+  fseek(state->pfp, state->pc, 0);
+  
+  if(feof(state->pfp) == 1){
+    info("Execution Finished.");
+    state->is_running = 0;
+  }
   return 0;
 }
 

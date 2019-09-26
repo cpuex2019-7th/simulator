@@ -13,6 +13,7 @@ typedef struct {
   // program
   FILE *pfp;
   uint32_t pc;
+  int is_running;
 
   // basic structure
   int reg[32];
