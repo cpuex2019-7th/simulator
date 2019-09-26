@@ -7,7 +7,7 @@
 void set_r_instr(int from, instr_r_t *to){
   to->funct7 = from >> 25;
   to->rs2 = (from >> 20) & 0b11111;
-  to->rs1 = (from >> 14) & 0b11111;
+  to->rs1 = (from >> 15) & 0b11111;
   to->funct3 = (from >> 12) & 0b111;
   to->rd = (from >> 7) & 0b11111;
 }
@@ -33,8 +33,8 @@ void set_s_instr(int from, instr_s_t *to){
 void set_b_instr(int from, instr_b_t *to){
   to->imm = (from >> 19) | ((from & 0b10000000) << 4) | ((from & 0x7E000000) >> 20) | ((from & 0xF00) >> 7);
   to->rs2 = (from >> 19) & 0b11111;
-  to->rs1 = (from >> 14) & 0b11111;
-  to->funct3 = (from >> 11) & 0b111;
+  to->rs1 = (from >> 15) & 0b11111;
+  to->funct3 = (from >> 12) & 0b111;
 
   to->imm = SIGNEXT(to->imm, 12);
 }
