@@ -19,7 +19,6 @@ void set_i_instr(int from, instr_i_t *to){
   to->rd = (from >> 7) & 0b11111;
   
   to->imm = SIGNEXT(to->imm, 11);
-
 }
 
 void set_s_instr(int from, instr_s_t *to){

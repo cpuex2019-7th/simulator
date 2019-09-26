@@ -10,7 +10,7 @@ typedef enum {
 } instr_type_t;
 
 typedef struct {
-  int instr_meta_t;
+  instr_type_t type;
   char *label;
 } instr_meta_t;
 

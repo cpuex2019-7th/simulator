@@ -76,7 +76,44 @@ void disasm(instr_t *instr, char *dest, size_t s){
     initialize_instr_meta();
   
   if (0 <= instr->op && instr->op < INSTR_UNKNOWN){
-    snprintf(dest, s, instr_meta[instr->op].label);
+    switch(instr_meta[instr->op].type){
+    case INSTR_R:
+      snprintf(dest, s, "%s r%d, r%d, r%d", instr_meta[instr->op].label,
+               ((instr_r_t*) instr)->rd,
+               ((instr_r_t*) instr)->rs1,
+               ((instr_r_t*) instr)->rs2);
+      break;
+    case INSTR_I:
+      snprintf(dest, s, "%s r%d, r%d, %d", instr_meta[instr->op].label,
+               ((instr_r_t*) instr)->rd,
+               ((instr_i_t*) instr)->rs1,
+               ((instr_i_t*) instr)->imm);
+      break;
+    case INSTR_S:
+      snprintf(dest, s, "%s r%d, r%d, %d", instr_meta[instr->op].label,
+               ((instr_s_t*) instr)->rs1,
+               ((instr_s_t*) instr)->rs2,
+               ((instr_s_t*) instr)->imm);
+      break;
+    case INSTR_B:
+      snprintf(dest, s, "%s r%d, r%d, %d", instr_meta[instr->op].label,
+               ((instr_b_t*) instr)->rs1,
+               ((instr_b_t*) instr)->rs2,
+               ((instr_b_t*) instr)->imm);
+      break;
+    case INSTR_U:
+      snprintf(dest, s, "%s r%d, %d", instr_meta[instr->op].label,
+               ((instr_u_t*) instr)->rd,
+               ((instr_u_t*) instr)->imm);
+      break;
+    case INSTR_J:
+      snprintf(dest, s, "%s r%d, %d", instr_meta[instr->op].label,
+               ((instr_u_t*) instr)->rd,
+               ((instr_u_t*) instr)->imm);
+      break;
+    default:
+      snprintf(dest, s, "%s (?)", instr_meta[instr->op].label);
+   }
   } else {
     snprintf(dest, s, "[unknown op]");
   }
