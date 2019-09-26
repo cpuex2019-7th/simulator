@@ -45,9 +45,8 @@ void set_u_instr(int from, instr_u_t *to){
 }
 
 void set_j_instr(int from, instr_j_t *to){
-  to->imm = (from & 0x80000000) >> 11 | (from & 0xFF000) | (from & 0x100000) >> 9 | (from & 0x7FE00000) >> 20;
+  to->imm = ((from & 0x80000000) >> 11) | (from & 0xFF000) | ((from & 0x100000) >> 9) | ((from & 0x7FE00000) >> 20);
   to->rd = (from >> 7) & 0b11111;
-
   to->imm = SIGNEXT(to->imm, 20);
 }
 

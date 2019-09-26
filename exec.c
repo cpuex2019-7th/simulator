@@ -77,7 +77,7 @@ void exec_stepi(state_t *state){
     break;
   case JALR:
     jump_enabled = 1;
-    jump_dest = (((instr_i_t *) instr)->imm + state->reg[((instr_i_t *) instr)->rs1]) & (~0b1);    
+    jump_dest = (((instr_i_t *) instr)->imm + state->reg[((instr_i_t *) instr)->rs1]) & (~0b1);
     ((instr_j_t *) instr)->rd = state->pc + 4;
     break;
   case BEQ:

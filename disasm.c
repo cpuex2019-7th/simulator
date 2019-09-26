@@ -108,11 +108,12 @@ void disasm(instr_t *instr, char *dest, size_t s){
       break;
     case INSTR_J:
       snprintf(dest, s, "%s r%d, %d", instr_meta[instr->op].label,
-               ((instr_u_t*) instr)->rd,
-               ((instr_u_t*) instr)->imm);
+               ((instr_j_t*) instr)->rd,
+               ((instr_j_t*) instr)->imm);
       break;
     default:
       snprintf(dest, s, "%s (?)", instr_meta[instr->op].label);
+      break;
    }
   } else {
     snprintf(dest, s, "[unknown op]");
