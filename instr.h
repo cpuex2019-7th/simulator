@@ -112,6 +112,8 @@ typedef struct {
 
 instr_t *fetch_and_decode_once(state_t*);
 
+// TODO: enhancement ... set ISA configurable (e.g. limitation on the ISA)
+
 #define SIGNEXT(v, sb) ((v) | (((v) & (1 << (sb))) ? ~((1 << (sb))-1) : 0))
 
 #define SIGNEXT_TOL(v, sb) ((v) | (((v) & (1 << (sb))) ? ~((1 << (sb))-1) : 0))
