@@ -1,3 +1,4 @@
+#include <limits.h>
 #include <string.h>
 #include "state.h"
 #include "logging.h"
@@ -23,6 +24,7 @@ void init_state(state_t *state, int argc, char* argv[]){
     state->reg[i] = 0;
     state->freg[i] = 0;
   }
+  
   for(int i=0; i<MEM_SIZE; i++)
     state->mem[i] = 0;
 
@@ -77,4 +79,7 @@ void init_state(state_t *state, int argc, char* argv[]){
     error("No executable was specified.");
     exit(1);
   }
+
+  fseek(state->pfp, 0L, SEEK_END);
+  state->length = ftell(state->pfp);
 }

@@ -32,24 +32,24 @@ int is_here_breakpoint(state_t *state){
   return 0;
 }
 
-void exec_hook_pre(state_t *state){
-  // TODO: process breakpoint
+int exec_hook_pre(state_t *state){
+  if(4 > (state->length-1) - state->pc){
+    info("Execution Finished.");
+    state->is_running = 0;
+    return 1;
+  }  
+  
   info("Executing next instruction ... (PC=%08x)", state->pc);
-
   if(is_step_execution_enabled == 1
      || is_here_breakpoint(state) == 1){
     is_step_execution_enabled = run_debugger(state);
   }
+
+  return 0;
 }
 
-int exec_hook_post(state_t *state){
-  fseek(state->pfp, state->pc, 0);
-  
-  if(feof(state->pfp) == 1){
-    info("Execution Finished.");
-    state->is_running = 0;
-  }
-  return 0;
+void exec_hook_post(state_t *state){
+  // TODO
 }
 
 void exec_stepi(state_t *state){

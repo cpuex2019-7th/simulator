@@ -26,7 +26,7 @@ void show_state(state_t* state){
   printf("------------------\n");
   printf("[*] Registers: \n");
   for (int i=0; i < 16; i++){
-    printf("\tr%d\t0x%08x\t/\tr%d\t0x%08x\n",
+    printf("\tx%d\t0x%08x\t/\tx%d\t0x%08x\n",
            i,
            state->reg[i],
            i+16,
@@ -44,7 +44,7 @@ int run_debugger(state_t* state){
   if(get_logging_level() > DEBUG)
     return 0;
 
-  printf("Breakpoint at %u\n", state->pc);
+  printf("Stopped at %u\n", state->pc);
   show_state(state);
   while(1){
     printf("> ");

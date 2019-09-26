@@ -14,6 +14,7 @@ typedef struct {
   FILE *pfp;
   uint32_t pc;
   int is_running;
+  size_t length;
 
   // basic structure
   int reg[32];

@@ -15,10 +15,10 @@ int main(int argc, char* argv[]){
 
   // main execution loop
   while(state.is_running){
-    exec_hook_pre(&state);    
-    exec_stepi(&state);
-    if(exec_hook_post(&state) == 1)
+    if(exec_hook_pre(&state) == 1)
       break;
+    exec_stepi(&state);
+    exec_hook_post(&state);
   }
 
   // for debug
