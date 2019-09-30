@@ -11,3 +11,6 @@ $(TARGET): $(OBJS)
 
 clean:
 	$(RM) $(TARGET)  $(OBJS) *~
+
+test:
+	./test.sh

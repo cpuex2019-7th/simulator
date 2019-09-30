@@ -100,7 +100,7 @@ void disasm(instr_t *instr, char *dest, size_t s){
                ((instr_b_t*) instr)->rs2,
                ((instr_b_t*) instr)->imm);
       break;
-    case INSTR_U:
+    case INSTR_U:      
       snprintf(dest, s, "%s x%d, %d", instr_meta[instr->op].label,
                ((instr_u_t*) instr)->rd,
                ((instr_u_t*) instr)->imm);

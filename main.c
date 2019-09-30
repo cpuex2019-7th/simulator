@@ -29,5 +29,6 @@ int main(int argc, char* argv[]){
   if(state.ofp != NULL)
     fclose(state.ofp);
 
-  return state.reg[10]; // x10 register
+  printf("%d", state.reg[10]);
+  return 0; // x10 register
 }

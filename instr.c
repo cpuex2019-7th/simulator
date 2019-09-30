@@ -40,7 +40,7 @@ void set_b_instr(int from, instr_b_t *to){
 }
 
 void set_u_instr(int from, instr_u_t *to){
-  to->imm = from & 0xFFFFF000;
+  to->imm = from & (~0b111111111111);
   to->rd = (from >> 7) & 0b11111;
 }
 
@@ -64,7 +64,7 @@ instr_t *fetch_and_decode_once(state_t *state){
   int iraw = *(int*)buf;
   switch (iraw & 0b1111111){
     // rv32i
-  case 0b0110111: // LUI
+  case 0b0110111: // LUI    
     set_u_instr(iraw, (instr_u_t*) instr);
     instr->op = LUI;
     break;

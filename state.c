@@ -24,6 +24,9 @@ void init_state(state_t *state, int argc, char* argv[]){
     state->reg[i] = 0;
     state->freg[i] = 0;
   }
+
+  // last return address 
+  state->reg[1] = INITIAL_X1;
   
   for(int i=0; i<MEM_SIZE; i++)
     state->mem[i] = 0;
@@ -32,7 +35,7 @@ void init_state(state_t *state, int argc, char* argv[]){
 
   state->ifp = NULL;
   state->ofp = NULL;
-
+  int is_stack_base_specified = 0;
   // process the arguments
   for (int i=1; i < argc; i++){
     if (strcmp(argv[i], "-i")==0){
@@ -60,6 +63,7 @@ void init_state(state_t *state, int argc, char* argv[]){
       new_elm->addr = baddr;
       state->blist = new_elm;
     } else if (strcmp(argv[i], "--stack") == 0){
+      is_stack_base_specified = 1;
       if (i == argc-1){
         error("No address for sp is specified.");
         exit(1);
@@ -87,6 +91,14 @@ void init_state(state_t *state, int argc, char* argv[]){
   if (state->pfp == NULL){
     error("No executable was specified.");
     exit(1);
+  }
+
+  // init again
+  if (!is_stack_base_specified){
+    // 0x100 has no meaning
+    debug("Setting x2(sp) and x8(fp) to %08x...", MEM_SIZE-0x100);
+    state->reg[2] = MEM_SIZE - 0x100;
+    state->reg[8] = MEM_SIZE - 0x100;
   }
 
   fseek(state->pfp, 0L, SEEK_END);

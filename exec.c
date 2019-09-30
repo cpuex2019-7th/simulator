@@ -36,7 +36,7 @@ int is_here_breakpoint(state_t *state){
 }
 
 int exec_hook_pre(state_t *state){
-  if(state->length < state->pc){
+  if(state->length < state->pc || state->pc == INITIAL_X1){
     info("Execution Finished.");
     state->is_running = 0;
     // for debug
@@ -72,22 +72,30 @@ void exec_stepi(state_t *state){
     // rv32i
     /////////
   case LUI:
-    state->reg[((instr_u_t *) instr)->rd] = ((instr_u_t *) instr)->imm;
+    write_reg(state,
+              ((instr_u_t *) instr)->rd,
+              ((instr_u_t *) instr)->imm);
     break;
   case AUIPC:
     // state->pc is the actual address of AUIPC
     // TODO: MMU
-      state->reg[((instr_u_t *) instr)->rd] = ((instr_u_t *) instr)->imm + state->pc;
+    write_reg(state,
+              ((instr_u_t *) instr)->rd,
+              ((instr_u_t *) instr)->imm + state->pc);
     break;
   case JAL:
     jump_enabled = 1;
     jump_dest = ((instr_j_t *) instr)->imm + state->pc;
-    ((instr_j_t *) instr)->rd = jump_dest;
+    write_reg(state,
+              ((instr_j_t *) instr)->rd,
+              jump_dest);
     break;
   case JALR:
     jump_enabled = 1;
     jump_dest = (((instr_i_t *) instr)->imm + state->reg[((instr_i_t *) instr)->rs1]) & (~0b1);
-    ((instr_j_t *) instr)->rd = state->pc + 4;
+    write_reg(state,
+              ((instr_j_t *) instr)->rd,
+              state->pc + 4);
     break;
   case BEQ:
     jump_enabled = state->reg[((instr_b_t *) instr)->rs1] == state->reg[((instr_b_t *) instr)->rs2] ? 1 : 0;
@@ -115,28 +123,38 @@ void exec_stepi(state_t *state){
     break;
     // TODO: do we need align check?
   case LB:
+    debug("Mem read (Byte): from %08x\n",
+          state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm);
     write_reg(state,
               ((instr_i_t *) instr)->rd,
-              *(uint8_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
+              SIGNEXT(*(uint8_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 7));
     
     break;
   case LH:
+    debug("Mem read (Half Word): from %08x\n",
+          state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm);
     write_reg(state,
               ((instr_i_t *) instr)->rd,
               SIGNEXT(*(uint16_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 15));
     break;
   case LW:
+    debug("Mem read (Word): from %08x\n",
+          state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm);
     write_reg(state,
               ((instr_i_t *) instr)->rd,
-              SIGNEXT(*(uint32_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 15));
+              *(uint32_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
     break;
   case LBU:
+    debug("Mem read (Byte Unsigned): from %08x\n",
+          state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm);
     write_reg(state,
               ((instr_i_t *) instr)->rd,
               *(uint8_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
     // no sign extention
     break;
   case LHU:
+    debug("Mem read (Half Word Unsigned): from %08x\n",
+          state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm);
     write_reg(state,
               ((instr_i_t *) instr)->rd,
               *(uint16_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
@@ -156,70 +174,112 @@ void exec_stepi(state_t *state){
     state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)+1] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 8;
     break;
   case SW:
-    debug("[*] Mem write (Word): %08x to %08x\n",
+    debug("[*] Mem write (Word): %08x to %08x (little endian: %02x %02x %02x %02x)\n",
           state->reg[((instr_s_t *) instr)->rs2],
-          (state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm));
+          (state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm),
+          state->reg[((instr_s_t *) instr)->rs2] & 0b11111111,
+          (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 8,
+          (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16)) >> 16,
+          (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24)) >> 24);
     state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
     state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)+1] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 8;
-    state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)+2] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 16;
-    state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)+3] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 24;
+    state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)+2] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16)) >> 16;
+    state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)+3] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24)) >> 24;
     break;    
   case ADDI:
-    state->reg[((instr_i_t *) instr)->rd] = state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm;
+    write_reg(state,
+              ((instr_i_t *) instr)->rd,
+              state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm);
     break;
   case SLTI:
-    state->reg[((instr_i_t *) instr)->rd] = state->reg[((instr_i_t *) instr)->rs1] < ((instr_i_t *) instr)->imm? 1 : 0;
+    write_reg(state,
+              ((instr_i_t *) instr)->rd,
+              state->reg[((instr_i_t *) instr)->rs1] < ((instr_i_t *) instr)->imm? 1 : 0);
     break;
   case SLTIU:
-    state->reg[((instr_i_t *) instr)->rd] = ((unsigned)state->reg[((instr_i_t *) instr)->rs1]) < ((unsigned)((instr_i_t *) instr)->imm)? 1 : 0;
+    write_reg(state,
+              ((instr_i_t *) instr)->rd,
+              ((unsigned)state->reg[((instr_i_t *) instr)->rs1]) < ((unsigned)((instr_i_t *) instr)->imm)? 1 : 0);
     break;
   case XORI:
-    state->reg[((instr_i_t *) instr)->rd] = state->reg[((instr_i_t *) instr)->rs1] ^ ((instr_i_t *) instr)->imm;
+    write_reg(state,
+              ((instr_i_t *) instr)->rd,
+              state->reg[((instr_i_t *) instr)->rs1] ^ ((instr_i_t *) instr)->imm);
     break;
   case ORI:
-    state->reg[((instr_i_t *) instr)->rd] = state->reg[((instr_i_t *) instr)->rs1] | ((instr_i_t *) instr)->imm;
+    write_reg(state,
+              ((instr_i_t *) instr)->rd,
+              state->reg[((instr_i_t *) instr)->rs1] | ((instr_i_t *) instr)->imm);
     break;
   case ANDI:
-    state->reg[((instr_i_t *) instr)->rd] = state->reg[((instr_i_t *) instr)->rs1] & ((instr_i_t *) instr)->imm;
+    write_reg(state,
+              ((instr_i_t *) instr)->rd,
+              state->reg[((instr_i_t *) instr)->rs1] & ((instr_i_t *) instr)->imm);
     break;
   case SLLI:    
-    state->reg[((instr_i_t *) instr)->rd] = state->reg[((instr_i_t *) instr)->rs1] << (((instr_i_t *) instr)->imm & 0b11111);
+    write_reg(state,
+              ((instr_i_t *) instr)->rd,
+              state->reg[((instr_i_t *) instr)->rs1] << (((instr_i_t *) instr)->imm & 0b11111));
     break;    
   case SRLI:    
-    state->reg[((instr_i_t *) instr)->rd] = srl(state->reg[((instr_i_t *) instr)->rs1], (((instr_i_t *) instr)->imm & 0b11111));
+    write_reg(state,
+              ((instr_i_t *) instr)->rd,
+              srl(state->reg[((instr_i_t *) instr)->rs1], (((instr_i_t *) instr)->imm & 0b11111)));
     break;    
   case SRAI:    
-    state->reg[((instr_i_t *) instr)->rd] = sra(state->reg[((instr_i_t *) instr)->rs1], (((instr_i_t *) instr)->imm & 0b11111));
+    write_reg(state,
+              ((instr_i_t *) instr)->rd,
+              sra(state->reg[((instr_i_t *) instr)->rs1], (((instr_i_t *) instr)->imm & 0b11111)));
     break;
   case ADD:
-    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] + state->reg[((instr_r_t *) instr)->rs2];
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              state->reg[((instr_r_t *) instr)->rs1] + state->reg[((instr_r_t *) instr)->rs2]);
     break;
   case SUB:
-    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] - state->reg[((instr_r_t *) instr)->rs2];
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              state->reg[((instr_r_t *) instr)->rs1] - state->reg[((instr_r_t *) instr)->rs2]);
     break;
   case SLL:
-    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] << state->reg[((instr_r_t *) instr)->rs2];
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              state->reg[((instr_r_t *) instr)->rs1] << state->reg[((instr_r_t *) instr)->rs2]);
     break;
   case SLT:
-    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] < state->reg[((instr_r_t *) instr)->rs2] ? 1 : 0;
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              state->reg[((instr_r_t *) instr)->rs1] < state->reg[((instr_r_t *) instr)->rs2] ? 1 : 0);
     break;
   case SLTU:
-    state->reg[((instr_r_t *) instr)->rd] = ((unsigned)state->reg[((instr_r_t *) instr)->rs1]) < ((unsigned)state->reg[((instr_r_t *) instr)->rs2]) ? 1 : 0;
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              ((unsigned)state->reg[((instr_r_t *) instr)->rs1]) < ((unsigned)state->reg[((instr_r_t *) instr)->rs2]) ? 1 : 0);
     break;
   case XOR:
-    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] ^ state->reg[((instr_r_t *) instr)->rs2];
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              state->reg[((instr_r_t *) instr)->rs1] ^ state->reg[((instr_r_t *) instr)->rs2]);
     break;
   case SRL:
-    state->reg[((instr_r_t *) instr)->rd] = srl(state->reg[((instr_r_t *) instr)->rs1], state->reg[((instr_r_t *) instr)->rs2]);
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              srl(state->reg[((instr_r_t *) instr)->rs1], state->reg[((instr_r_t *) instr)->rs2]));
     break;
   case SRA:
-    state->reg[((instr_r_t *) instr)->rd] = sra(state->reg[((instr_r_t *) instr)->rs1], state->reg[((instr_r_t *) instr)->rs2]);
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              sra(state->reg[((instr_r_t *) instr)->rs1], state->reg[((instr_r_t *) instr)->rs2]));
     break;
   case OR:
-    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] | state->reg[((instr_r_t *) instr)->rs2];
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              state->reg[((instr_r_t *) instr)->rs1] | state->reg[((instr_r_t *) instr)->rs2]);
     break;
   case AND:
-    state->reg[((instr_r_t *) instr)->rd] = state->reg[((instr_r_t *) instr)->rs1] & state->reg[((instr_r_t *) instr)->rs2];
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              state->reg[((instr_r_t *) instr)->rs1] & state->reg[((instr_r_t *) instr)->rs2]);
     break;
   case FENCE:
     // TODO
@@ -231,37 +291,50 @@ void exec_stepi(state_t *state){
     // seems to be buggy due to my poor knowledge on C :cry:
     // tests should be prepared soon :-)
   case MUL:
-    state->reg[((instr_r_t *) instr)->rd] = (((int64_t) state->reg[((instr_r_t *) instr)->rs1] * (int64_t) state->reg[((instr_r_t *) instr)->rs2])) & 0xFFFFFFFF;
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              (((int64_t) state->reg[((instr_r_t *) instr)->rs1] * (int64_t) state->reg[((instr_r_t *) instr)->rs2])) & 0xFFFFFFFF);
     break;
   case MULH:
-    state->reg[((instr_r_t *) instr)->rd] =
-      ((((int64_t) state->reg[((instr_r_t *) instr)->rs1]
-         * (int64_t) state->reg[((instr_r_t *) instr)->rs2]))
-       & (((int64_t) 0xFFFFFFFF) << 32)) >> 32;
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              ((((int64_t) state->reg[((instr_r_t *) instr)->rs1]
+                 * (int64_t) state->reg[((instr_r_t *) instr)->rs2]))
+               & (((int64_t) 0xFFFFFFFF) << 32)) >> 32);
     break;
   case MULHSU:
-    state->reg[((instr_r_t *) instr)->rd] =
-      ((((int64_t) state->reg[((instr_r_t *) instr)->rs1]
-         * (uint64_t) state->reg[((instr_r_t *) instr)->rs2]))
-       & (((uint64_t) 0xFFFFFFFF) << 32)) >> 32;
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              ((((int64_t) state->reg[((instr_r_t *) instr)->rs1]
+                 * (uint64_t) state->reg[((instr_r_t *) instr)->rs2]))
+               & (((uint64_t) 0xFFFFFFFF) << 32)) >> 32);
     break;
   case MULHU:
-    state->reg[((instr_r_t *) instr)->rd] =
-      ((((uint64_t) state->reg[((instr_r_t *) instr)->rs1]
-         * (uint64_t) state->reg[((instr_r_t *) instr)->rs2]))
-       & (((uint64_t) 0xFFFFFFFF) << 32)) >> 32;
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              ((((uint64_t) state->reg[((instr_r_t *) instr)->rs1]
+                 * (uint64_t) state->reg[((instr_r_t *) instr)->rs2]))
+               & (((uint64_t) 0xFFFFFFFF) << 32)) >> 32);
     break;
   case DIV:
-    state->reg[((instr_r_t *) instr)->rd] = (((int32_t) state->reg[((instr_r_t *) instr)->rs1] / (int32_t) state->reg[((instr_r_t *) instr)->rs2]));
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              (((int32_t) state->reg[((instr_r_t *) instr)->rs1] / (int32_t) state->reg[((instr_r_t *) instr)->rs2])));
     break;
   case DIVU:
-    state->reg[((instr_r_t *) instr)->rd] = (((uint32_t) state->reg[((instr_r_t *) instr)->rs1] / (uint32_t) state->reg[((instr_r_t *) instr)->rs2]));
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              (((uint32_t) state->reg[((instr_r_t *) instr)->rs1] / (uint32_t) state->reg[((instr_r_t *) instr)->rs2])));
     break;
   case REM:
-    state->reg[((instr_r_t *) instr)->rd] = (((int32_t) state->reg[((instr_r_t *) instr)->rs1] % (int32_t) state->reg[((instr_r_t *) instr)->rs2]));
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              (((int32_t) state->reg[((instr_r_t *) instr)->rs1] % (int32_t) state->reg[((instr_r_t *) instr)->rs2])));
     break;
   case REMU:
-    state->reg[((instr_r_t *) instr)->rd] = (((uint32_t) state->reg[((instr_r_t *) instr)->rs1] % (uint32_t) state->reg[((instr_r_t *) instr)->rs2]));
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              (((uint32_t) state->reg[((instr_r_t *) instr)->rs1] % (uint32_t) state->reg[((instr_r_t *) instr)->rs2])));
     break;
 
     /////////

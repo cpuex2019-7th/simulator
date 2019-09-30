@@ -110,7 +110,7 @@ typedef struct {
 } instr_j_t;
 
 typedef struct {
-  char pad[sizeof(instr_r_t)-sizeof(instr_kind_t)];
+  char pad[40];
   instr_kind_t op;
 } instr_t;
 
