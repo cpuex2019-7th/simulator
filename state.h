@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define MEM_SIZE 0x4000
+#define MEM_SIZE 0x100000
 
 typedef struct _breakpoint_list {
   uint32_t addr;  

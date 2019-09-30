@@ -72,6 +72,21 @@ int run_debugger(state_t* state){
       // TODO
     } else if(strncmp(cmd, "examine ", 8) == 0){
       // TODO
+    } else if(strcmp(cmd, "stack") == 0){
+      unsigned sp = state->reg[2];
+      unsigned fp = state->reg[8];
+      for (unsigned i=0; i < fp-sp; i += 8){
+        printf("%08x: %02x %02x %02x %02x %02x %02x %02x %02x\n",
+               sp+i,
+               state->mem[sp+i+0],
+               state->mem[sp+i+1],
+               state->mem[sp+i+2],
+               state->mem[sp+i+3],
+               state->mem[sp+i+4],
+               state->mem[sp+i+5],
+               state->mem[sp+i+6],
+               state->mem[sp+i+7]);
+      }
     } else if(strcmp(cmd, "next") == 0){
       break;
     } else if(strcmp(cmd, "quit") == 0){

@@ -21,9 +21,6 @@ int main(int argc, char* argv[]){
     exec_hook_post(&state);
   }
 
-  // for debug
-  show_state(&state);
-
   // finalize
   if(state.pfp != NULL)
     fclose(state.pfp);
@@ -32,5 +29,5 @@ int main(int argc, char* argv[]){
   if(state.ofp != NULL)
     fclose(state.ofp);
 
-  return 0;
+  return state.reg[10]; // x10 register
 }

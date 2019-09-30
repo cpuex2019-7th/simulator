@@ -13,9 +13,12 @@ int sra(int x, int n) {
   return x < 0 && n > 0? x >> n | ~(~0U >> n): x >> n;
 }
 
-void exit_if_strict_mode(int code){
-  if (is_strict)
+void exit_if_strict_mode(state_t *state, int code){
+  if (is_strict){
+    // for debug
+    show_state(state);    
     exit(code);
+  }
 }
 
 void set_execution_mode(int _mode){
@@ -33,9 +36,11 @@ int is_here_breakpoint(state_t *state){
 }
 
 int exec_hook_pre(state_t *state){
-  if(4 > (state->length-1) - state->pc){
+  if(state->length < state->pc){
     info("Execution Finished.");
     state->is_running = 0;
+    // for debug
+    show_state(state);
     return 1;
   }  
   
@@ -138,17 +143,26 @@ void exec_stepi(state_t *state){
     // no sign extention
     break;
   case SB:
-    state->mem[(((instr_s_t *) instr)->rs1 + ((instr_s_t *) instr)->imm)] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
+    debug("[*] Mem write (Byte): %02x to %08x\n",
+          state->reg[((instr_s_t *) instr)->rs2] & 0xFF,
+          (state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm));    
+    state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
     break;
   case SH:
-    state->mem[(((instr_s_t *) instr)->rs1 + ((instr_s_t *) instr)->imm)] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
-    state->mem[(((instr_s_t *) instr)->rs1 + ((instr_s_t *) instr)->imm)+1] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 8;
+    debug("[*] Mem write (Half word): %04x to %08x\n",
+          state->reg[((instr_s_t *) instr)->rs2] & 0x00FF,
+          (state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm));
+    state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
+    state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)+1] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 8;
     break;
   case SW:
-    state->mem[(((instr_s_t *) instr)->rs1 + ((instr_s_t *) instr)->imm)] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
-    state->mem[(((instr_s_t *) instr)->rs1 + ((instr_s_t *) instr)->imm)+1] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 8;
-    state->mem[(((instr_s_t *) instr)->rs1 + ((instr_s_t *) instr)->imm)+2] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 16;
-    state->mem[(((instr_s_t *) instr)->rs1 + ((instr_s_t *) instr)->imm)+3] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 24;
+    debug("[*] Mem write (Word): %08x to %08x\n",
+          state->reg[((instr_s_t *) instr)->rs2],
+          (state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm));
+    state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
+    state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)+1] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 8;
+    state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)+2] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 16;
+    state->mem[(state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm)+3] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 24;
     break;    
   case ADDI:
     state->reg[((instr_i_t *) instr)->rd] = state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm;
@@ -255,7 +269,7 @@ void exec_stepi(state_t *state){
     /////////
   default:    
     error("unimplemented instruction: %d", instr->op);
-    exit_if_strict_mode(1);
+    exit_if_strict_mode(state, 1);
     break;
   }
 

@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-
 #include "instr.h"
 #include "state.h"
+#include "logging.h"
   
 void set_r_instr(int from, instr_r_t *to){
   to->funct7 = from >> 25;
@@ -22,10 +22,10 @@ void set_i_instr(int from, instr_i_t *to){
 }
 
 void set_s_instr(int from, instr_s_t *to){
-  to->imm = ((from >> 20) & 0b111111100000) | ((from >> 7) & 0b11111);
-  to->rs2 = (from >> 19) & 0b11111;
-  to->rs1 = (from >> 14) & 0b11111;
-  to->funct3 = (from >> 11) & 0b111;
+  to->imm = ((from & 0xFE000000) >> 20) | ((from & 0xF80) >> 7);
+  to->rs2 = (from >> 20) & 0b11111;
+  to->rs1 = (from >> 15) & 0b11111;
+  to->funct3 = (from >> 12) & 0b111;
 
   to->imm = SIGNEXT(to->imm, 11);
 }
@@ -105,7 +105,7 @@ instr_t *fetch_and_decode_once(state_t *state){
     break;
   case 0b0000011: // (L*)
     set_i_instr(iraw, (instr_i_t*) instr);
-    switch(iraw & 0x7000){
+    switch((iraw & 0x7000) >> 12){
     case 0b000: // LB
       instr->op = LB;
       break;
@@ -125,13 +125,18 @@ instr_t *fetch_and_decode_once(state_t *state){
     break;
   case 0b0100011: // (S*)
     set_s_instr(iraw, (instr_s_t*) instr);
-    switch(iraw & 0x7000){
+    switch((iraw & 0x7000) >> 12){
     case 0b000: // SB
+      instr->op = SB;
       break;
     case 0b001: // SH
+      instr->op = SH;
       break;
     case 0b010: // SW
-      break;      
+      instr->op = SW;
+      break;
+    default:
+      error(":thinking_face:");
     }
     break;
   case 0b0010011: // (Arith Imm)
@@ -270,6 +275,6 @@ instr_t *fetch_and_decode_once(state_t *state){
   default:
     instr->op = INSTR_UNKNOWN;
     break;
-  }  
+  }
   return instr;
 }

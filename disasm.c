@@ -40,7 +40,6 @@ void initialize_instr_meta(){
   instr_meta[ANDI] = (instr_meta_t){INSTR_I, "andi"};
   instr_meta[SLLI] = (instr_meta_t){INSTR_I, "slli"};
   instr_meta[SRAI] = (instr_meta_t){INSTR_I, "srai"};
-
   instr_meta[ADD] = (instr_meta_t){INSTR_R, "add"};
   instr_meta[SUB] = (instr_meta_t){INSTR_R, "sub"};
   instr_meta[SLL] = (instr_meta_t){INSTR_R, "sll"};
@@ -78,36 +77,36 @@ void disasm(instr_t *instr, char *dest, size_t s){
   if (0 <= instr->op && instr->op < INSTR_UNKNOWN){
     switch(instr_meta[instr->op].type){
     case INSTR_R:
-      snprintf(dest, s, "%s r%d, r%d, r%d", instr_meta[instr->op].label,
+      snprintf(dest, s, "%s x%d, x%d, x%d", instr_meta[instr->op].label,
                ((instr_r_t*) instr)->rd,
                ((instr_r_t*) instr)->rs1,
                ((instr_r_t*) instr)->rs2);
       break;
     case INSTR_I:
-      snprintf(dest, s, "%s r%d, r%d, %d", instr_meta[instr->op].label,
+      snprintf(dest, s, "%s x%d, x%d, %d", instr_meta[instr->op].label,
                ((instr_r_t*) instr)->rd,
                ((instr_i_t*) instr)->rs1,
                ((instr_i_t*) instr)->imm);
       break;
     case INSTR_S:
-      snprintf(dest, s, "%s r%d, r%d, %d", instr_meta[instr->op].label,
-               ((instr_s_t*) instr)->rs1,
+      snprintf(dest, s, "%s x%d, %d(x%d)", instr_meta[instr->op].label,
                ((instr_s_t*) instr)->rs2,
-               ((instr_s_t*) instr)->imm);
+               ((instr_s_t*) instr)->imm,
+               ((instr_s_t*) instr)->rs1);
       break;
     case INSTR_B:
-      snprintf(dest, s, "%s r%d, r%d, %d", instr_meta[instr->op].label,
+      snprintf(dest, s, "%s x%d, x%d, %d", instr_meta[instr->op].label,
                ((instr_b_t*) instr)->rs1,
                ((instr_b_t*) instr)->rs2,
                ((instr_b_t*) instr)->imm);
       break;
     case INSTR_U:
-      snprintf(dest, s, "%s r%d, %d", instr_meta[instr->op].label,
+      snprintf(dest, s, "%s x%d, %d", instr_meta[instr->op].label,
                ((instr_u_t*) instr)->rd,
                ((instr_u_t*) instr)->imm);
       break;
     case INSTR_J:
-      snprintf(dest, s, "%s r%d, %d", instr_meta[instr->op].label,
+      snprintf(dest, s, "%s x%d, %d", instr_meta[instr->op].label,
                ((instr_j_t*) instr)->rd,
                ((instr_j_t*) instr)->imm);
       break;

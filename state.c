@@ -59,6 +59,15 @@ void init_state(state_t *state, int argc, char* argv[]){
       new_elm->next = state->blist;
       new_elm->addr = baddr;
       state->blist = new_elm;
+    } else if (strcmp(argv[i], "--stack") == 0){
+      if (i == argc-1){
+        error("No address for sp is specified.");
+        exit(1);
+      }
+      unsigned baddr;
+      sscanf(argv[++i], "%x", &baddr);
+      state->reg[2] = baddr;
+      state->reg[8] = baddr;
     } else {
       // should be .bin filepath
       if(state->pfp != NULL){

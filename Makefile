@@ -1,7 +1,7 @@
 CC = gcc
 CFLAGS = -Wall -O
 LDFLAGS = 
-SRCS = $(shell find . -type f -name "*.c")
+SRCS = $(wildcard *.c)
 OBJS = $(SRCS:.c=.o)
 
 TARGET = sim
