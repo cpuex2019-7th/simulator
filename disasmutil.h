@@ -14,4 +14,4 @@ typedef struct {
   char *label;
 } instr_meta_t;
 
-void disasm(instr_t *instr, char *dest, size_t s);
+void disasm(instr_t *instr, uint32_t, char *dest, size_t s);

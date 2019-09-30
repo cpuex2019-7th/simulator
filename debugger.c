@@ -3,7 +3,7 @@
 #include "logging.h"
 #include "state.h"
 #include "instr.h"
-#include "disasm.h"
+#include "disasmutil.h"
 
 void print_instr(state_t *state){
   char *buf[4];
@@ -14,7 +14,7 @@ void print_instr(state_t *state){
   instr_t *instr = fetch_and_decode_once(state);
 
   char detail[100];
-  disasm(instr, detail, 100);
+  disasm(instr, state->pc, detail, 100);
   printf("0x%08x:\t0x%08x\t%s\n", state->pc, iraw, detail);
 
   free(instr);

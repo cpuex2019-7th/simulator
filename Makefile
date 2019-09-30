@@ -2,15 +2,23 @@ CC = gcc
 CFLAGS = -Wall -O
 LDFLAGS = 
 SRCS = $(wildcard *.c)
-OBJS = $(SRCS:.c=.o)
+OBJS = $(filter-out disasm.o sim.o, $(SRCS:.c=.o))
 
-TARGET = sim
+.PHONY: all
 
-$(TARGET): $(OBJS)
+all: sim disasm
+
+disasm: $(OBJS) disasm.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
+sim: $(OBJS) sim.o
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+%.o: %.c
+	$(CC) $(CFLAGS) -c $^ $(LDFLAGS)
+
 clean:
-	$(RM) $(TARGET)  $(OBJS) *~
+	$(RM) $(OBJS) disasm.o sim.o disasm sim *~
 
 test:
 	./test.sh
