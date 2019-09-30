@@ -18,10 +18,21 @@ make
 ./sim <filename of RISC-V executable> --breakpoint 0 --debug
 ```
 
+## Test
+
+```sh
+make
+./test.sh
+```
+
 ## Options
 
-- `-i`: TBD
-- `-o`: TBD
-- `--breakpoint <addr in hex (e.g. FF)>`: TBD
-- `--debug`, `--info`: TBD
-- `--strict`: TBD
+- `-i`: to be implemented in the future
+- `-o`: to be implemented in the future
+- `--breakpoint <addr in hex (e.g. FF)>` (or `-b <addr>`)
+  - You can set multiple breakpoints.
+  - e.g. `--breakpoint F0`
+- `--debug`, `--info`
+  - 
+- `--strict`
+  - if this directive is set, this simulator quits when any errors occur.
