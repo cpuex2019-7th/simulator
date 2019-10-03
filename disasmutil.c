@@ -88,6 +88,7 @@ void initialize_instr_meta(){
   instr_meta[ORI] = (instr_meta_t){INSTR_I, "ori"};
   instr_meta[ANDI] = (instr_meta_t){INSTR_I, "andi"};
   instr_meta[SLLI] = (instr_meta_t){INSTR_I, "slli"};
+  instr_meta[SRLI] = (instr_meta_t){INSTR_I, "srli"};
   instr_meta[SRAI] = (instr_meta_t){INSTR_I, "srai"};
   instr_meta[ADD] = (instr_meta_t){INSTR_R, "add"};
   instr_meta[SUB] = (instr_meta_t){INSTR_R, "sub"};
@@ -110,7 +111,7 @@ void initialize_instr_meta(){
   instr_meta[MULH] = (instr_meta_t){INSTR_R, "mulh"};
   instr_meta[MULHSU] = (instr_meta_t){INSTR_R, "mulhsu"};
   instr_meta[MULHU] = (instr_meta_t){INSTR_R, "mulhu"};
-  instr_meta[DIV] = (instr_meta_t){INSTR_R, "divU"};
+  instr_meta[DIV] = (instr_meta_t){INSTR_R, "div"};
   instr_meta[DIVU] = (instr_meta_t){INSTR_R, "divu"};
   instr_meta[REM] = (instr_meta_t){INSTR_R, "rem"};
   instr_meta[REMU] = (instr_meta_t){INSTR_R, "remu"};
@@ -144,10 +145,11 @@ void disasm(instr_t *instr, uint32_t pc, char *dest, size_t s){
                r2t(((instr_s_t*) instr)->rs1));
       break;
     case INSTR_B:
-      snprintf(dest, s, "%s %s, %s, %d", instr_meta[instr->op].label,
+      snprintf(dest, s, "%s %s, %s, %d ; jumps to %08x", instr_meta[instr->op].label,
                r2t(((instr_b_t*) instr)->rs1),
                r2t(((instr_b_t*) instr)->rs2),
-               ((instr_b_t*) instr)->imm);
+               ((instr_b_t*) instr)->imm,
+               pc + ((instr_b_t*) instr)->imm);
       break;
     case INSTR_U:      
       snprintf(dest, s, "%s %s, %d", instr_meta[instr->op].label,

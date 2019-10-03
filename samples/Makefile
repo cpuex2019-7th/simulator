@@ -5,10 +5,14 @@ LDFLAGS =
 
 SRCS = $(filter-out call.c, $(wildcard *.c))
 OBJS = $(SRCS:.c=.o)
+COES = $(SRCS:.c=.coe)
 BINS = $(SRCS:.c=.bin)
 EXPECTEDS = $(SRCS:.c=.expected)
 
-default: $(BINS) $(EXPECTEDS)
+default: $(BINS) $(EXPECTEDS) $(COES)
+
+%.coe: %.bin
+	python bin2coe.py $^ > $@
 
 %.bin: %.o
 	riscv64-unknown-elf-objcopy -O binary -j .text	$^ $@
