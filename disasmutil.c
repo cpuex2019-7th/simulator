@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "instr.h"
 #include "disasmutil.h"
+#include "exec.h"
 
 static int is_instr_meta_initialized = 0;
 static instr_meta_t instr_meta[INSTR_UNKNOWN+1] = {};
@@ -139,10 +140,10 @@ void disasm(instr_t *instr, uint32_t pc, char *dest, size_t s){
                ((instr_i_t*) instr)->imm);
       break;
     case INSTR_S:
-      snprintf(dest, s, "%s %s, %d(%s)", instr_meta[instr->op].label,
+      snprintf(dest, s, "%s %s, %s, %d", instr_meta[instr->op].label,
                r2t(((instr_s_t*) instr)->rs2),
-               ((instr_s_t*) instr)->imm,
-               r2t(((instr_s_t*) instr)->rs1));
+               r2t(((instr_s_t*) instr)->rs1),
+               ((instr_s_t*) instr)->imm);
       break;
     case INSTR_B:
       snprintf(dest, s, "%s %s, %s, %d ; jumps to %08x", instr_meta[instr->op].label,
@@ -154,7 +155,7 @@ void disasm(instr_t *instr, uint32_t pc, char *dest, size_t s){
     case INSTR_U:      
       snprintf(dest, s, "%s %s, %d", instr_meta[instr->op].label,
                r2t(((instr_u_t*) instr)->rd),
-               ((instr_u_t*) instr)->imm);
+               srl((((instr_u_t*) instr)->imm), 12));
       break;
     case INSTR_J:
       snprintf(dest, s, "%s %s, %d ; jumps to %08x", instr_meta[instr->op].label,

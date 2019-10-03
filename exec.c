@@ -36,7 +36,7 @@ int is_here_breakpoint(state_t *state){
 }
 
 int exec_hook_pre(state_t *state){
-  if(state->length < state->pc || state->pc == INITIAL_X1){
+  if(state->length < state->pc+4 || state->pc == INITIAL_X1){
     info("Execution Finished.");
     state->is_running = 0;
     // for debug
