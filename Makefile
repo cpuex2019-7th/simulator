@@ -22,3 +22,10 @@ clean:
 
 test:
 	./test.sh
+
+install: sim disasm
+	cp sim /usr/local/bin/cpuex_sim
+	chmod 755 /usr/local/bin/cpuex_sim
+	cp disasm /usr/local/bin/cpuex_disasm
+	chmod 755 /usr/local/bin/cpuex_disasm
+	echo "installed: cpuex_sim, cpuex_disam in /usr/bin"

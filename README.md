@@ -7,15 +7,15 @@ RISC-V Simulator.
 You can use this simulator by the following commands:
 
 ```sh
-make
-./sim <filename of RISC-V executable>
+make install
+./cpuex_sim <filename of RISC-V executable>
 ```
 
 If you'd like to execute step by step, the following command will help you:
 
 ```sh
-make
-./sim <filename of RISC-V executable> --breakpoint 0 --debug
+make install
+./cpuex_sim <filename of RISC-V executable> --breakpoint 0 --debug
 ```
 
 ## Test
