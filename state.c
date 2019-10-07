@@ -39,11 +39,25 @@ void init_state(state_t *state, int argc, char* argv[]){
   // process the arguments
   for (int i=1; i < argc; i++){
     if (strcmp(argv[i], "-i")==0){
-      // nop
-      // for future use
+      if (i == argc-1){
+        error("No input file is specified.");
+        exit(1);
+      }
+      state->ifp = fopen(argv[++i], "rb");
+      if (state->ifp == NULL){
+        error("Cannot open input destination.");
+        exit(1);
+      }
     } else if (strcmp(argv[i], "-o")==0){
-      // nop
-      // for future use
+      if (i == argc-1){
+        error("No output file is specified.");
+        exit(1);
+      }
+      state->ofp = fopen(argv[++i], "wb");
+      if (state->ofp == NULL){
+        error("Cannot open output destination.");
+        exit(1);
+      }
     } else if (strcmp(argv[i], "--debug")==0){
       set_logging_level(DEBUG);
     } else if (strcmp(argv[i], "--info")==0){

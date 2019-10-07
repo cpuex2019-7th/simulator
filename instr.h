@@ -66,46 +66,46 @@ typedef enum {
 
 typedef struct {  
   int8_t funct7 : 7;
-  int8_t rs2 : 5;
-  int8_t rs1 : 5;
-  int8_t funct3 : 3;
-  int8_t rd : 5;
+  uint8_t rs2 : 5;
+  uint8_t rs1 : 5;
+  uint8_t funct3 : 3;
+  uint8_t rd : 5;
   instr_kind_t op : 7;
 } instr_r_t;
 
 typedef struct {  
   int16_t imm : 12;
-  int8_t rs1 : 5;
-  int8_t funct3 : 3;
-  int8_t rd : 5;
+  uint8_t rs1 : 5;
+  uint8_t funct3 : 3;
+  uint8_t rd : 5;
   instr_kind_t op : 7;
 } instr_i_t;
 
 typedef struct {  
   int16_t imm : 12;
-  int8_t rs2 : 5;
-  int8_t rs1 : 5;
-  int8_t funct3 : 3;
+  uint8_t rs2 : 5;
+  uint8_t rs1 : 5;
+  uint8_t funct3 : 3;
   instr_kind_t op : 7;
 } instr_s_t;
 
 typedef struct {  
   int16_t imm : 12;
-  int8_t rs2 : 5;
-  int8_t rs1 : 5;
-  int8_t funct3 : 3;
+  uint8_t rs2 : 5;
+  uint8_t rs1 : 5;
+  uint8_t funct3 : 3;
   instr_kind_t op : 7;
 } instr_b_t;
 
 typedef struct {  
   int32_t imm : 32;
-  int8_t rd : 5;
+  uint8_t rd : 5;
   instr_kind_t op : 7;
 } instr_u_t;
 
 typedef struct {  
   int32_t imm : 21;
-  int8_t rd : 5;
+  uint8_t rd : 5;
   instr_kind_t op : 7;
 } instr_j_t;
 

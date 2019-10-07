@@ -53,7 +53,7 @@ char *r2t(int reg){
   if(0 <= reg && reg <= 31){
     return reg_aliases[reg];
   } else {
-    printf("Error: invalid register references!");
+    printf("Error: invalid register references! %d", reg);
     exit(1);
   }
 }
