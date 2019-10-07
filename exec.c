@@ -306,14 +306,14 @@ void exec_stepi(state_t *state){
     write_reg(state,
               ((instr_r_t *) instr)->rd,
               ((((int64_t) state->reg[((instr_r_t *) instr)->rs1]
-                 * (uint64_t) state->reg[((instr_r_t *) instr)->rs2]))
+                 * (uint64_t) ((uint32_t) state->reg[((instr_r_t *) instr)->rs2])))
                & (((uint64_t) 0xFFFFFFFF) << 32)) >> 32);
     break;
   case MULHU:
     write_reg(state,
               ((instr_r_t *) instr)->rd,
-              ((((uint64_t) state->reg[((instr_r_t *) instr)->rs1]
-                 * (uint64_t) state->reg[((instr_r_t *) instr)->rs2]))
+              ((((uint64_t) ((uint32_t) state->reg[((instr_r_t *) instr)->rs1])
+                 * (uint64_t) ((uint32_t) state->reg[((instr_r_t *) instr)->rs2])))
                & (((uint64_t) 0xFFFFFFFF) << 32)) >> 32);
     break;
   case DIV:
