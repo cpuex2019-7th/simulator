@@ -1,5 +1,6 @@
 #pragma once
 #include <stdio.h>
+#include <stdint.h>
 #include <stdlib.h>
 
 #define INITIAL_X1 0xff000000

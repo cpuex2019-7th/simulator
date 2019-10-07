@@ -1,5 +1,5 @@
+#include <stdint.h>
 #include "instr.h"
-
 typedef enum {
               INSTR_R,
               INSTR_I,

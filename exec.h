@@ -1,4 +1,5 @@
 #pragma once
+#include <stdint.h>
 #include "state.h"
 
 int exec_hook_pre(state_t *state);
