@@ -1,6 +1,6 @@
-# Simulator
+# Simulator & Disassembler
 
-RISC-V Simulator.
+RISC-V (rv32im) Simulator & Disassmbler.
 
 ## How to use
 
@@ -27,12 +27,12 @@ make
 
 ## Options
 
-- `-i`: to be implemented in the future
-- `-o`: to be implemented in the future
+- `-i`: the file given to UART input
+- `-o`: the file written by UART output
 - `--breakpoint <addr in hex (e.g. FF)>` (or `-b <addr>`)
   - You can set multiple breakpoints.
   - e.g. `--breakpoint F0`
 - `--debug`, `--info`
-  - 
+  - You can set debugging level.
 - `--strict`
   - if this directive is set, this simulator quits when any errors occur.
