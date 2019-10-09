@@ -150,15 +150,15 @@ void exec_stepi(state_t *state){
                 ((instr_i_t *) instr)->rd,
                 SIGNEXT(*(uint16_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 15));
     } else {
-      debug("[*] UART read (Half Word): %08x\n", i_addr);
+      debug("[*] UART read (Half Word, but lower 1 byte will be read): %08x\n", i_addr);
       if (state->ifp == NULL){
         error("No input file was specified.");
         exit(1);
       }
-      tmp = fgetc(state->ifp) + (fgetc(state->ifp) << 8);
+      tmp = fgetc(state->ifp);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
-                SIGNEXT(tmp, 15));
+                SIGNEXT(tmp, 7));
     }
     break;
   case LW:
@@ -168,14 +168,15 @@ void exec_stepi(state_t *state){
                 ((instr_i_t *) instr)->rd,
                 *(uint32_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
     } else {
-      debug("[*] UART read (Word): %08x\n", i_addr);
+      debug("[*] UART read (Word, but lower 1 byte will be read): %08x\n", i_addr);
       if (state->ifp == NULL){
         error("No input file was specified.");
         exit(1);
       }
+      tmp = fgetc(state->ifp);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
-                fgetc(state->ifp) + (fgetc(state->ifp) << 8) + (fgetc(state->ifp) << 16) + (fgetc(state->ifp) << 24));
+                SIGNEXT(tmp, 7));
     }
     break;
   case LBU:
@@ -186,7 +187,7 @@ void exec_stepi(state_t *state){
                 (uint32_t) *(uint8_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
       // no sign extention
     } else {
-      debug("[*] UART read (Byte Unsigned): %08x\n", i_addr);
+      debug("[*] UART read (Byte Unsigned, but lower 1 byte will be read): %08x\n", i_addr);
       if (state->ifp == NULL){
         error("No input file was specified.");
         exit(1);
@@ -204,14 +205,14 @@ void exec_stepi(state_t *state){
                 (uint32_t) *(uint16_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
       // no sign extention
     } else {
-      debug("[*] UART read (Half Word Unsigned): %08x\n", i_addr);
+      debug("[*] UART read (Half Word Unsigned, but lower 1 byte will be read): %08x\n", i_addr);
       if (state->ifp == NULL){
         error("No input file was specified.");
         exit(1);
       }
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
-                fgetc(state->ifp) + (fgetc(state->ifp) << 8));
+                fgetc(state->ifp));
     }
     break;
   case SB:
@@ -237,13 +238,12 @@ void exec_stepi(state_t *state){
       state->mem[s_addr] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
       state->mem[s_addr+1] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 8;
     } else {
-      debug("[*] UART write (Half word): %08x\n", s_addr);
+      debug("[*] UART write (Half word, but lower 1 byte will be written): %08x\n", s_addr);
       if (state->ofp == NULL){
         error("No output file was specified.");
         exit(1);
       }
       fprintf(state->ofp, "%1c", state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
-      fprintf(state->ofp, "%1c", (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 8);
     }
     break;
   case SW:
@@ -260,15 +260,12 @@ void exec_stepi(state_t *state){
       state->mem[s_addr+2] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16)) >> 16;
       state->mem[s_addr+3] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24)) >> 24;
     } else {
-      debug("[*] UART write (Word): %08x\n", s_addr);
+      debug("[*] UART write (Word, but lower 1 byte will be written): %08x\n", s_addr);
       if (state->ofp == NULL){
         error("No output file was specified.");
         exit(1);
       }
       fprintf(state->ofp, "%1c", state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
-      fprintf(state->ofp, "%1c", (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 8);
-      fprintf(state->ofp, "%1c", (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16)) >> 16);
-      fprintf(state->ofp, "%1c", (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24)) >> 24);
     }
     break;    
   case ADDI:
