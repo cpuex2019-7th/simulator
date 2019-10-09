@@ -29,3 +29,7 @@ install: sim disasm
 	cp disasm /usr/local/bin/cpuex_disasm
 	chmod 755 /usr/local/bin/cpuex_disasm
 	echo "installed: cpuex_sim, cpuex_disam in /usr/bin"
+
+uninstall:
+	rm -rf /usr/local/bin/cpuex_sim
+	rm -rf /usr/local/bin/cpuex_disasm
