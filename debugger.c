@@ -26,10 +26,12 @@ void show_state(state_t* state){
   printf("------------------\n");
   printf("[*] Registers: \n");
   for (int i=0; i < 16; i++){
-    printf("\tx%d\t0x%08x\t/\tx%d\t0x%08x\n",
+    printf("\tx%d\t(%s)\t\t0x%08x\t/\tx%d\t(%s)\t0x%08x\n",
            i,
+           r2t(i),
            state->reg[i],
            i+16,
+           r2t(i+16),
            state->reg[i+16]);
   }
   printf("[*] Next instruction: \n");

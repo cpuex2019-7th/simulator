@@ -15,3 +15,4 @@ typedef struct {
 } instr_meta_t;
 
 void disasm(instr_t *instr, uint32_t, char *dest, size_t s);
+char *r2t(int reg);
