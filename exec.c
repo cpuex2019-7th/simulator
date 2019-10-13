@@ -148,7 +148,7 @@ void exec_stepi(state_t *state){
       case 8:
         write_reg(state,
                   ((instr_i_t *) instr)->rd,
-                  0);
+                  get_uart_status(state));
         break;
       default:
         error("Invalid UART address: %08x");
@@ -178,7 +178,7 @@ void exec_stepi(state_t *state){
       case 8:
         write_reg(state,
                   ((instr_i_t *) instr)->rd,
-                  0);
+                  get_uart_status(state)); 
         break;
       default:
         error("Invalid UART address");
@@ -208,7 +208,7 @@ void exec_stepi(state_t *state){
       case 8:
         write_reg(state,
                   ((instr_i_t *) instr)->rd,
-                  0);
+                  get_uart_status(state));
         break;
       default:
         error("Invalid UART address");
@@ -238,7 +238,7 @@ void exec_stepi(state_t *state){
       case 8:
         write_reg(state,
                   ((instr_i_t *) instr)->rd,
-                  0);
+                  get_uart_status(state));
         break;
       default:
         error("Invalid UART address");
@@ -268,7 +268,7 @@ void exec_stepi(state_t *state){
       case 8:
         write_reg(state,
                   ((instr_i_t *) instr)->rd,
-                  0);
+                  get_uart_status(state));
         break;
       default:
         error("Invalid UART address");
@@ -291,6 +291,7 @@ void exec_stepi(state_t *state){
           exit(1);
         }
         fprintf(state->ofp, "%1c", state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
+        fflush(state->ofp);
         break;
       case 0xc:
         // TODO
@@ -317,6 +318,7 @@ void exec_stepi(state_t *state){
           exit(1);
         }
         fprintf(state->ofp, "%1c", state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
+        fflush(state->ofp);
         break;
       case 0xc:
         // TODO
@@ -349,6 +351,7 @@ void exec_stepi(state_t *state){
           exit(1);
         }
         fprintf(state->ofp, "%1c", state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
+        fflush(state->ofp);
         break;
       case 0xc:
         // TODO

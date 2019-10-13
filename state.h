@@ -32,3 +32,4 @@ typedef struct {
 
 void init_state(state_t *state, int, char**);
 void write_reg(state_t*, int, int);
+int get_uart_status(state_t*);

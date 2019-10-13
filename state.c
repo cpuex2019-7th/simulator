@@ -4,6 +4,12 @@
 #include "logging.h"
 #include "exec.h"
 
+int get_uart_status(state_t *state){
+  char c = fgetc(state->ifp);
+  if (c != EOF)
+    fseek(state->ifp, -1, SEEK_CUR);
+  return c == EOF? 0 : 1;
+}
 
 void write_reg(state_t *state, int dest, int value){
   if (dest == 0){
