@@ -7,7 +7,7 @@
 
 void write_reg(state_t *state, int dest, int value){
   if (dest == 0){
-    debug("Someone tried to write a value to zero register(x0). It is prohibited.");
+    debug("Someone tried to write a value to zero register(x0). It will be ignored.");
     exit_if_strict_mode(1);
   } else {
     state->reg[dest] = value;
