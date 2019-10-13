@@ -92,7 +92,7 @@ void exec_stepi(state_t *state){
     jump_dest = ((instr_j_t *) instr)->imm + state->pc;
     write_reg(state,
               ((instr_j_t *) instr)->rd,
-              jump_dest);
+              state->pc + 4);
     break;
   case JALR:
     jump_enabled = 1;
