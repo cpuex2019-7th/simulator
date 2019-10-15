@@ -16,3 +16,4 @@ typedef struct {
 
 void disasm(instr_t *instr, uint32_t, char *dest, size_t s);
 char *r2t(int reg);
+char *r2tf(int reg);

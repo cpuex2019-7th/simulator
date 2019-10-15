@@ -27,12 +27,11 @@ int main(int argc, char* argv[]){
     exit(1);
   }
   
-  for(state.pc=0; state.pc<state.length; state.pc+=4){
+  for(state.pc=0; state.pc<state.length; state.pc+=4){    
     char *buf[4];
     fseek(state.pfp, (int) state.pc, SEEK_SET);
     fread(buf, 4, 4, state.pfp);
     int iraw = *(int*)buf;
-  
     instr_t *instr = fetch_and_decode_once(&state);
     char detail[100];
     disasm(instr, state.pc, detail, 100);

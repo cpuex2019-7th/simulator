@@ -34,8 +34,19 @@ void show_state(state_t* state){
            r2t(i+16),
            state->reg[i+16]);
   }
-  printf("[*] Next instruction: \n");
-  print_instr(state);
+  for (int i=0; i < 16; i++){
+    printf("\tf%d\t(%s)\t\t%f\t/\tf%d\t(%s)\t%f\n",
+           i,
+           r2tf(i),
+           state->freg[i].f,
+           i+16,
+           r2tf(i+16),
+           state->freg[i+16].f);
+  }
+  if(state->pc < state->length){
+    printf("[*] Next instruction: \n");  
+    print_instr(state);
+  }
   printf("------------------\n");
 }
 

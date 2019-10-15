@@ -559,7 +559,7 @@ void exec_stepi(state_t *state){
               state->freg[((instr_r_t *) instr)->rs1].i);
     break;
   case FADDS:
-    write_reg(state,
+    write_freg(state,
               ((instr_r_t *) instr)->rd,
               state->freg[((instr_r_t *) instr)->rs1].f + state->freg[((instr_r_t *) instr)->rs2].f);
     break;

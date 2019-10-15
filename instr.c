@@ -301,7 +301,7 @@ instr_t *fetch_and_decode_once(state_t *state){
       break;
     }
   case 0b1010011: // Floating Arith
-    set_r_instr(iraw, (instr_r_t*) instr);    
+    set_r_instr(iraw, (instr_r_t*) instr);
     switch(iraw >> 25){
     case 0b0000000: // FADDS
       if((iraw & 0x7000) >> 12 == 0b000){
@@ -408,6 +408,7 @@ instr_t *fetch_and_decode_once(state_t *state){
       unimplemented();
       break;
     }
+    break;
   default:
     unimplemented();
     break;
