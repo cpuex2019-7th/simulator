@@ -1,3 +1,5 @@
+#include <math.h>
+
 #include "state.h"
 #include "instr.h"
 #include "debugger.h"
@@ -512,7 +514,111 @@ void exec_stepi(state_t *state){
               ((instr_r_t *) instr)->rd,
               (((uint32_t) state->reg[((instr_r_t *) instr)->rs1] % (uint32_t) state->reg[((instr_r_t *) instr)->rs2])));
     break;
+    
+    /////////
+    // rv32f
+    /////////
 
+  case FLW:
+    if((i_addr >> 24) != 0x7F){
+      debug("Mem read (Float Word): from %08x\n", i_addr);      
+      write_freg(state,
+                 ((instr_i_t *) instr)->rd,
+                 *(float *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
+    } else {
+      error("[*] UART read with FLW is prohibited.");
+      exit(1);
+    }
+    break;
+  case FSW:
+    if((s_addr >> 24) != 0x7F){
+      debug("[*] Mem write (Float Word): %08x to %08x (little endian: %02x %02x %02x %02x)\n",
+            state->freg[((instr_s_t *) instr)->rs2],
+            s_addr,
+            state->freg[((instr_s_t *) instr)->rs2].i & 0b11111111,
+            (state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)) >> 8,
+            (state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)) >> 16,
+            (state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)) >> 24);
+      state->mem[s_addr] = state->freg[((instr_s_t *) instr)->rs2].i & 0b11111111;
+      state->mem[s_addr+1] = (state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)) >> 8;
+      state->mem[s_addr+2] = (state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)) >> 16;
+      state->mem[s_addr+3] = (state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)) >> 24;
+    } else {
+      error("[*] UART write with SLW is prohibited.");
+      exit(1);
+    }
+    break;    
+  case FMVWX:
+    write_freg(state,
+               ((instr_r_t *) instr)->rd,
+               ((freg_float) state->reg[((instr_r_t *) instr)->rs1]).f);
+    break;
+  case FMVXW:
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              state->freg[((instr_r_t *) instr)->rs1].i);
+    break;
+  case FADDS:
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              state->freg[((instr_r_t *) instr)->rs1].f + state->freg[((instr_r_t *) instr)->rs2].f);
+    break;
+  case FSUBS:
+    write_freg(state,
+               ((instr_r_t *) instr)->rd,
+               state->freg[((instr_r_t *) instr)->rs1].f - state->freg[((instr_r_t *) instr)->rs2].f);
+    break;
+  case FMULS:
+    write_freg(state,
+               ((instr_r_t *) instr)->rd,
+               state->freg[((instr_r_t *) instr)->rs1].f * state->freg[((instr_r_t *) instr)->rs2].f);
+    break;
+  case FDIVS:
+    write_freg(state,
+               ((instr_r_t *) instr)->rd,
+               state->freg[((instr_r_t *) instr)->rs1].f / state->freg[((instr_r_t *) instr)->rs2].f);
+    break;
+  case FSQRTS:
+    write_freg(state,
+               ((instr_r_t *) instr)->rd,
+               sqrtf(state->freg[((instr_r_t *) instr)->rs1].f));
+    break;
+  case FEQS:
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              state->freg[((instr_r_t *) instr)->rs1].f == state->freg[((instr_r_t *) instr)->rs2].f);
+    break;
+  case FLES:
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              state->freg[((instr_r_t *) instr)->rs1].f < state->freg[((instr_r_t *) instr)->rs2].f);
+    break;
+  case FCVTWS:
+    write_reg(state,
+              ((instr_r_t *) instr)->rd,
+              (int) (state->freg[((instr_r_t *) instr)->rs1].f));
+    break;
+  case FCVTSW:
+    write_freg(state,
+               ((instr_r_t *) instr)->rd,
+               (float) (state->reg[((instr_r_t *) instr)->rs1]));
+    break;
+  case FSGNJS:
+    write_freg(state,
+               ((instr_r_t *) instr)->rd,
+               (state->freg[((instr_r_t *) instr)->rs2].f >= 0? +1.0 : -1.0) * fabsf(state->freg[((instr_r_t *) instr)->rs1].f));
+    break;
+  case FSGNJNS:
+    write_freg(state,
+               ((instr_r_t *) instr)->rd,
+               (state->freg[((instr_r_t *) instr)->rs2].f >= 0? -1.0 : +1.0) * fabsf(state->freg[((instr_r_t *) instr)->rs1].f));
+    break;
+  case FSGNJXS:
+    write_freg(state,
+               ((instr_r_t *) instr)->rd,
+               ((freg_float)(((srl(state->freg[((instr_r_t *) instr)->rs1].i, 31) ^ srl(state->freg[((instr_r_t *) instr)->rs2].i, 31)) << 31) & (state->freg[((instr_r_t *) instr)->rs1].i & ~(0b1 << 31)))).f);
+    break;
+    
     /////////
     // :thinking_face:
     /////////

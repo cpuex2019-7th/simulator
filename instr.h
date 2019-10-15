@@ -60,6 +60,26 @@ typedef enum {
               REMU,
               
               /////////
+              // rv32f
+              /////////
+              FLW,
+              FSW,
+              FMVWX,
+              FMVXW,
+              FADDS,
+              FSUBS,
+              FMULS,
+              FDIVS,
+              FSQRTS,
+              FEQS,
+              FLES,
+              FCVTWS,
+              FCVTSW,
+              FSGNJS,
+              FSGNJNS,
+              FSGNJXS, 
+              
+              /////////
               // for debug
               /////////
               INSTR_UNKNOWN

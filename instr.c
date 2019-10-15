@@ -50,6 +50,11 @@ void set_j_instr(int from, instr_j_t *to){
   to->imm = SIGNEXT(to->imm, 20);
 }
 
+void unimplemented(){
+  error(":thinking_face:");
+  exit(1);
+}
+
 // use fp for future
 // (it may allow us to decode the instructions included by rv32c easily?)
 instr_t *fetch_and_decode_once(state_t *state){
@@ -60,7 +65,6 @@ instr_t *fetch_and_decode_once(state_t *state){
   fseek(state->pfp, (int) state->pc, SEEK_SET);
   fread(buf, 4, 4, state->pfp);
   
-  // TODO: rv32c
   int iraw = *(int*)buf;
   switch (iraw & 0b1111111){
     // rv32i
@@ -136,7 +140,8 @@ instr_t *fetch_and_decode_once(state_t *state){
       instr->op = SW;
       break;
     default:
-      error(":thinking_face:");
+      unimplemented();
+      break;
     }
     break;
   case 0b0010011: // (Arith Imm)
@@ -272,8 +277,139 @@ instr_t *fetch_and_decode_once(state_t *state){
     break;
   case 0b1110011:
     // TODO: rv32i Others
+    unimplemented();
+    break;
+
+    // rv32f
+    //////////
+  case 0b0000111: // FLW
+    if((iraw & 0x7000) >> 12 == 0b010){
+      set_i_instr(iraw, (instr_i_t*) instr);
+      instr->op = FLW;
+      break;
+    } else {
+      unimplemented();
+      break;
+    }
+  case 0b0100111: // FSW
+    if((iraw & 0x7000) >> 12 == 0b010){
+      set_s_instr(iraw, (instr_s_t*) instr);
+      instr->op = FSW;
+      break;
+    } else {
+      unimplemented();
+      break;
+    }
+  case 0b1010011: // Floating Arith
+    set_r_instr(iraw, (instr_r_t*) instr);    
+    switch(iraw >> 25){
+    case 0b0000000: // FADDS
+      if((iraw & 0x7000) >> 12 == 0b000){
+        instr->op = FADDS;
+        break;
+      } else {
+        unimplemented();
+        break;
+      }
+    case 0b0000100: // FSUBS
+      if((iraw & 0x7000) >> 12 == 0b000){
+        instr->op = FSUBS;
+        break;
+      } else {
+        unimplemented();
+        break;
+      }
+    case 0b0001000: // FMULS
+      if((iraw & 0x7000) >> 12 == 0b000){
+        instr->op = FMULS;
+        break;
+      } else {
+        unimplemented();
+        break;
+      }
+    case 0b0001100: // FDIVS
+      if((iraw & 0x7000) >> 12 == 0b000){
+        instr->op = FDIVS;
+        break;
+      } else {
+        unimplemented();
+        break;
+      }
+    case 0b0101100: // FSQRTS
+      if((iraw & 0x7000) >> 12 == 0b000){
+        instr->op = FSQRTS;
+        break;
+      } else {
+        unimplemented();
+        break;
+      }
+    case 0b0010000: // FSGNJS, FSGNJNS, FSGNJXS
+      switch ((iraw & 0x7000) >> 12){
+      case 0b000:
+        instr->op = FSGNJS;
+        break;
+      case 0b001:
+        instr->op = FSGNJNS;
+        break;
+      case 0b010:
+        instr->op = FSGNJXS;
+        break;
+      default:
+        unimplemented();
+        break;
+      }
+      break;
+    case 0b1100000: // FCVTWS
+      if((iraw & 0x7000) >> 12 == 0b000){
+        instr->op = FCVTWS;
+        break;
+      } else {
+        unimplemented();
+        break;
+      }
+    case 0b1110000: // FMVXW
+      if((iraw & 0x7000) >> 12 == 0b000){
+        instr->op = FMVXW;
+        break;
+      } else {
+        unimplemented();
+        break;
+      }
+    case 0b1010000: // FEQS, FLES
+      switch ((iraw & 0x7000) >> 12){
+      case 0b010:
+        instr->op = FEQS;
+        break;
+      case 0b000:
+        instr->op = FLES;
+        break;
+      default:
+        unimplemented();
+        break;
+      }
+      break;
+    case 0b1101000: // FCVTSW
+      if((iraw & 0x7000) >> 12 == 0b000){
+        instr->op = FCVTSW;
+        break;
+      } else {
+        unimplemented();
+        break;
+      }
+    case 0b1111000: // FMVWX
+      if((iraw & 0x7000) >> 12 == 0b000){
+        instr->op = FMVWX;
+        break;
+      } else {
+        unimplemented();
+        break;
+      }
+    default:
+      unimplemented();
+      break;
+    }
   default:
-    instr->op = INSTR_UNKNOWN;
+    unimplemented();
     break;
   }
   return instr;

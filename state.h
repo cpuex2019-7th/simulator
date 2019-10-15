@@ -6,6 +6,11 @@
 #define INITIAL_X1 0xff000000
 #define MEM_SIZE 0x100000
 
+typedef union {
+  float f;
+  int i;
+} freg_float;
+
 typedef struct _breakpoint_list {
   uint32_t addr;  
   struct _breakpoint_list *next;
@@ -20,7 +25,7 @@ typedef struct {
 
   // basic structure
   int reg[32];
-  float freg[32];
+  freg_float freg[32];
   uint8_t mem[MEM_SIZE];
   
   // for debug
@@ -32,4 +37,5 @@ typedef struct {
 
 void init_state(state_t *state, int, char**);
 void write_reg(state_t*, int, int);
+void write_freg(state_t *, int, float);
 int get_uart_status(state_t*);

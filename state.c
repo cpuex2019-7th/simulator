@@ -20,6 +20,10 @@ void write_reg(state_t *state, int dest, int value){
   }
 }
 
+void write_freg(state_t *state, int dest, float value){
+  state->freg[dest].f = value;
+}
+
 
 void init_state(state_t *state, int argc, char* argv[]){
   state->pfp = NULL;
@@ -28,7 +32,7 @@ void init_state(state_t *state, int argc, char* argv[]){
   
   for(int i=0; i<32; i++){    
     state->reg[i] = 0;
-    state->freg[i] = 0;
+    state->freg[i].i = 0;
   }
 
   // last return address 
