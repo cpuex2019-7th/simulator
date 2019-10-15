@@ -10,44 +10,44 @@ static instr_meta_t instr_meta[INSTR_UNKNOWN+1] = {};
 // initialize instr_meta by hand. this is so dirty :-(
 
 static char *reg_aliases[] = {
-                            "zero",
-                            "ra",
-                            "sp",
-                            "gp",
-                            "tp",
+                              "zero",
+                              "ra",
+                              "sp",
+                              "gp",
+                              "tp",
                             
-                            "t0",
-                            "t1",
-                            "t2",
+                              "t0",
+                              "t1",
+                              "t2",
                             
-                            "s0",
-                            "s1",
+                              "s0",
+                              "s1",
                             
-                            "a0",
-                            "a1",
+                              "a0",
+                              "a1",
                             
-                            "a2",
-                            "a3",
-                            "a4",
-                            "a5",
-                            "a6",
-                            "a7",
+                              "a2",
+                              "a3",
+                              "a4",
+                              "a5",
+                              "a6",
+                              "a7",
 
-                            "s2",
-                            "s3",
-                            "s4",
-                            "s5",
-                            "s6",
-                            "s7",
-                            "s8",
-                            "s9",
-                            "s10",
-                            "s11",
+                              "s2",
+                              "s3",
+                              "s4",
+                              "s5",
+                              "s6",
+                              "s7",
+                              "s8",
+                              "s9",
+                              "s10",
+                              "s11",
                             
-                            "t3",
-                            "t4",
-                            "t5",
-                            "t6"
+                              "t3",
+                              "t4",
+                              "t5",
+                              "t6"
 };
 
 static char *freg_aliases[] = {
@@ -98,6 +98,15 @@ char *r2t(int reg){
   }
 }
 
+char *r2tf(int reg){
+  if(0 <= reg && reg <= 31){
+    return freg_aliases[reg];
+  } else {
+    printf("Error: invalid floating point register references! %d", reg);
+    exit(1);
+  }
+}
+
 void initialize_instr_meta(){
   /////////
   // rv32i
@@ -143,7 +152,7 @@ void initialize_instr_meta(){
   instr_meta[AND] = (instr_meta_t){INSTR_R, "and"};
   instr_meta[FENCE] = (instr_meta_t){INSTR_R, "fence"};
 
-  //TODO
+  // TODO
   
   /////////
   // rv32m
@@ -157,6 +166,31 @@ void initialize_instr_meta(){
   instr_meta[REM] = (instr_meta_t){INSTR_R, "rem"};
   instr_meta[REMU] = (instr_meta_t){INSTR_R, "remu"};
 
+  /////////
+  // rv32f
+  /////////
+  instr_meta[FLW] = (instr_meta_t){INSTR_I, "flw"};
+  instr_meta[FSW] = (instr_meta_t){INSTR_S, "fsw"};
+  
+  instr_meta[FMVWX] = (instr_meta_t){INSTR_R, "fmvwx"};
+  instr_meta[FMVXW] = (instr_meta_t){INSTR_R, "fmvxw"};
+  
+  instr_meta[FADDS] = (instr_meta_t){INSTR_R, "fadds"};
+  instr_meta[FSUBS] = (instr_meta_t){INSTR_R, "fsubs"};
+  instr_meta[FMULS] = (instr_meta_t){INSTR_R, "fmuls"};
+  instr_meta[FDIVS] = (instr_meta_t){INSTR_R, "fdivs"};
+  instr_meta[FSQRTS] = (instr_meta_t){INSTR_R, "fsqrts"};
+  
+  instr_meta[FEQS] = (instr_meta_t){INSTR_R, "feqs"};
+  instr_meta[FLES] = (instr_meta_t){INSTR_R, "fles"};
+  
+  instr_meta[FCVTWS] = (instr_meta_t){INSTR_R, "fcvtws"};
+  instr_meta[FCVTSW] = (instr_meta_t){INSTR_R, "fcvtsw"};
+  
+  instr_meta[FSGNJS] = (instr_meta_t){INSTR_R, "fsgnjs"};
+  instr_meta[FSGNJNS] = (instr_meta_t){INSTR_R, "fsgnjns"};
+  instr_meta[FSGNJXS] = (instr_meta_t){INSTR_R, "fsgnjxs"};
+    
   // finalize
   is_instr_meta_initialized = 1;  
 }
@@ -168,22 +202,69 @@ void disasm(instr_t *instr, uint32_t pc, char *dest, size_t s){
   if (0 <= instr->op && instr->op < INSTR_UNKNOWN){
     switch(instr_meta[instr->op].type){
     case INSTR_R:
-      snprintf(dest, s, "%s %s, %s, %s", instr_meta[instr->op].label,
-               r2t(((instr_r_t*) instr)->rd),
-               r2t(((instr_r_t*) instr)->rs1),
-               r2t(((instr_r_t*) instr)->rs2));
+      if (instr->op == FADDS
+          || instr->op == FSUBS
+          || instr->op == FMULS
+          || instr->op == FDIVS
+          || instr->op == FSGNJS
+          || instr->op == FSGNJNS
+          || instr->op == FSGNJXS) {
+        snprintf(dest, s, "%s %s, %s, %s", instr_meta[instr->op].label,
+                 r2tf(((instr_r_t*) instr)->rd),
+                 r2tf(((instr_r_t*) instr)->rs1),
+                 r2tf(((instr_r_t*) instr)->rs2));
+      } else if (instr->op == FSQRTS) {
+        snprintf(dest, s, "%s %s, %s", instr_meta[instr->op].label,
+                 r2tf(((instr_r_t*) instr)->rd),
+                 r2tf(((instr_r_t*) instr)->rs1));
+      } else if (instr->op == FCVTWS
+                 || instr->op == FMVXW) {
+        snprintf(dest, s, "%s %s, %s", instr_meta[instr->op].label,
+                 r2t(((instr_r_t*) instr)->rd),
+                 r2tf(((instr_r_t*) instr)->rs1));
+      } else if (instr->op == FCVTSW
+                 || instr->op == FMVWX) {
+        snprintf(dest, s, "%s %s, %s", instr_meta[instr->op].label,
+                 r2tf(((instr_r_t*) instr)->rd),
+                 r2t(((instr_r_t*) instr)->rs1));        
+      } else if (instr->op == FEQS
+                 || instr->op == FLES) {
+        snprintf(dest, s, "%s %s, %s, %s", instr_meta[instr->op].label,
+                 r2t(((instr_r_t*) instr)->rd),
+                 r2tf(((instr_r_t*) instr)->rs1),
+                 r2tf(((instr_r_t*) instr)->rs2));        
+      } else {
+        snprintf(dest, s, "%s %s, %s, %s", instr_meta[instr->op].label,
+                 r2t(((instr_r_t*) instr)->rd),
+                 r2t(((instr_r_t*) instr)->rs1),
+                 r2t(((instr_r_t*) instr)->rs2));
+      }
       break;
-    case INSTR_I:      
-      snprintf(dest, s, "%s %s, %s, %d", instr_meta[instr->op].label,
-               r2t(((instr_r_t*) instr)->rd),
-               r2t(((instr_i_t*) instr)->rs1),
-               ((instr_i_t*) instr)->imm);
+    case INSTR_I:
+      if (instr->op == FLW) {
+        snprintf(dest, s, "%s %s, %s, %d", instr_meta[instr->op].label,
+                 r2tf(((instr_r_t*) instr)->rd),
+                 r2t(((instr_i_t*) instr)->rs1),
+                 ((instr_i_t*) instr)->imm);
+      } else {
+        snprintf(dest, s, "%s %s, %s, %d", instr_meta[instr->op].label,
+                 r2t(((instr_r_t*) instr)->rd),
+                 r2t(((instr_i_t*) instr)->rs1),
+                 ((instr_i_t*) instr)->imm);
+      }
       break;
     case INSTR_S:
+      if (instr->op == FSW){
+      snprintf(dest, s, "%s %s, %s, %d", instr_meta[instr->op].label,
+               r2tf(((instr_s_t*) instr)->rs2),
+               r2t(((instr_s_t*) instr)->rs1),
+               ((instr_s_t*) instr)->imm);
+      } else {
       snprintf(dest, s, "%s %s, %s, %d", instr_meta[instr->op].label,
                r2t(((instr_s_t*) instr)->rs2),
                r2t(((instr_s_t*) instr)->rs1),
                ((instr_s_t*) instr)->imm);
+      }
       break;
     case INSTR_B:
       snprintf(dest, s, "%s %s, %s, %d ; jumps to %08x", instr_meta[instr->op].label,
@@ -206,7 +287,7 @@ void disasm(instr_t *instr, uint32_t pc, char *dest, size_t s){
     default:
       snprintf(dest, s, "%s (?)", instr_meta[instr->op].label);
       break;
-   }
+    }
   } else {
     snprintf(dest, s, "[unknown op]");
   }
