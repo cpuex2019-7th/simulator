@@ -135,27 +135,8 @@ void exec_stepi(state_t *state){
                 ((instr_i_t *) instr)->rd,
                 SIGNEXT(*(uint8_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 7));
     } else {
-      debug("[*] UART read (Byte): %08x\n", i_addr);
-      switch(i_addr & 0b11111111){
-      case 0:
-        if (state->ifp == NULL){
-          error("No input file was specified.");
-          exit(1);
-        }
-        tmp = fgetc(state->ifp);
-        write_reg(state,
-                  ((instr_i_t *) instr)->rd,
-                  SIGNEXT(tmp, 7));
-        break;
-      case 8:
-        write_reg(state,
-                  ((instr_i_t *) instr)->rd,
-                  get_uart_status(state));
-        break;
-      default:
-        error("Invalid UART address: %08x");
-        exit(1);
-      }
+      error("[*] UART read with LB is prohibited.");
+      exit_if_strict_mode(state, 1);
     }
     break;
   case LH:
@@ -165,27 +146,8 @@ void exec_stepi(state_t *state){
                 ((instr_i_t *) instr)->rd,
                 SIGNEXT(*(uint16_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 15));
     } else {
-      debug("[*] UART read (Half Word, but lower 1 byte will be read): %08x\n", i_addr & 0b11111111);
-      switch(i_addr & 0b11111111){
-      case 0:
-        if (state->ifp == NULL){
-          error("No input file was specified.");
-          exit(1);
-        }
-        tmp = fgetc(state->ifp);
-        write_reg(state,
-                  ((instr_i_t *) instr)->rd,
-                  SIGNEXT(tmp, 7));
-        break;
-      case 8:
-        write_reg(state,
-                  ((instr_i_t *) instr)->rd,
-                  get_uart_status(state)); 
-        break;
-      default:
-        error("Invalid UART address");
-        exit(1);
-      }
+      error("[*] UART read with FH is prohibited.");
+      exit_if_strict_mode(state, 1);
     }
     break;
   case LW:
@@ -195,27 +157,8 @@ void exec_stepi(state_t *state){
                 ((instr_i_t *) instr)->rd,
                 *(uint32_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
     } else {
-      debug("[*] UART read (Word, but lower 1 byte will be read): %08x\n", i_addr & 0b11111111);
-      switch(i_addr & 0b11111111){
-      case 0:
-        if (state->ifp == NULL){
-          error("No input file was specified.");
-          exit(1);
-        }
-        tmp = fgetc(state->ifp);
-        write_reg(state,
-                  ((instr_i_t *) instr)->rd,
-                  SIGNEXT(tmp, 7));
-        break;
-      case 8:
-        write_reg(state,
-                  ((instr_i_t *) instr)->rd,
-                  get_uart_status(state));
-        break;
-      default:
-        error("Invalid UART address");
-        exit(1);
-      }
+      error("[*] UART read with LW is prohibited.");
+      exit_if_strict_mode(state, 1);
     }
     break;
   case LBU:
@@ -226,7 +169,7 @@ void exec_stepi(state_t *state){
                 (uint32_t) *(uint8_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
       // no sign extention
     } else {
-      debug("[*] UART read (Byte Unsigned, but lower 1 byte will be read): %08x\n", i_addr & 0b11111111);
+      debug("[*] UART read: %08x\n", i_addr & 0b11111111);
       switch(i_addr & 0b11111111){
       case 0:
         if (state->ifp == NULL){
@@ -256,26 +199,8 @@ void exec_stepi(state_t *state){
                 (uint32_t) *(uint16_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
       // no sign extention
     } else {
-      debug("[*] UART read (Half Word Unsigned, but lower 1 byte will be read): %08x\n", i_addr & 0b11111111);
-      switch(i_addr & 0b11111111){
-      case 0:
-        if (state->ifp == NULL){
-          error("No input file was specified.");
-          exit(1);
-        }
-        write_reg(state,
-                  ((instr_i_t *) instr)->rd,
-                  fgetc(state->ifp));
-        break;
-      case 8:
-        write_reg(state,
-                  ((instr_i_t *) instr)->rd,
-                  get_uart_status(state));
-        break;
-      default:
-        error("Invalid UART address");
-        exit(1);
-      }
+      error("[*] UART read with LHU is prohibited.");
+      exit_if_strict_mode(state, 1);
     }
     break;
   case SB:
@@ -312,23 +237,8 @@ void exec_stepi(state_t *state){
       state->mem[s_addr] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
       state->mem[s_addr+1] = srl((state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)), 8);
     } else {
-      debug("[*] UART write (Half word, but lower 1 byte will be written): %08x\n", s_addr);
-      switch(s_addr & 0b11111111){
-      case 4:
-        if (state->ofp == NULL){
-          error("No output file was specified.");
-          exit(1);
-        }
-        fprintf(state->ofp, "%1c", state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
-        fflush(state->ofp);
-        break;
-      case 0xc:
-        // TODO
-        break;
-      default:
-        error("Invalid UART address");
-        exit(1);       
-      }
+      error("[*] UART write with SH is prohibited.");
+      exit_if_strict_mode(state, 1);
     }
     break;
   case SW:
@@ -345,23 +255,8 @@ void exec_stepi(state_t *state){
       state->mem[s_addr+2] = srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16), 16);
       state->mem[s_addr+3] = srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24),  24);
     } else {
-      debug("[*] UART write (Word, but lower 1 byte will be written): %08x\n", s_addr);
-      switch(s_addr & 0b11111111){
-      case 4:
-        if (state->ofp == NULL){
-          error("No output file was specified.");
-          exit(1);
-        }
-        fprintf(state->ofp, "%1c", state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
-        fflush(state->ofp);
-        break;
-      case 0xc:
-        // TODO
-        break;
-      default:
-        error("Invalid UART address");
-        exit(1);       
-      }
+      error("[*] UART write with SW is prohibited.");
+      exit_if_strict_mode(state, 1);
     }
     break;    
   case ADDI:
@@ -527,7 +422,7 @@ void exec_stepi(state_t *state){
                  *(float *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
     } else {
       error("[*] UART read with FLW is prohibited.");
-      exit(1);
+      exit_if_strict_mode(state, 1);
     }
     break;
   case FSW:
