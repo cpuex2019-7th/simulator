@@ -70,8 +70,7 @@ void exec_stepi(state_t *state){
 
   int s_addr = state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm;
   int i_addr = state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm;
-  int tmp = 0;
-  
+ 
   // exec & write
   switch(instr->op){
     /////////
