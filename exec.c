@@ -591,7 +591,7 @@ void exec_stepi(state_t *state){
   case FLES:
     write_reg(state,
               ((instr_r_t *) instr)->rd,
-              state->freg[((instr_r_t *) instr)->rs1].f < state->freg[((instr_r_t *) instr)->rs2].f);
+              state->freg[((instr_r_t *) instr)->rs1].f <= state->freg[((instr_r_t *) instr)->rs2].f);
     break;
   case FCVTWS:
     write_reg(state,
