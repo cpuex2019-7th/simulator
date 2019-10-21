@@ -175,21 +175,21 @@ void initialize_instr_meta(){
   instr_meta[FMVWX] = (instr_meta_t){INSTR_R, "fmvwx"};
   instr_meta[FMVXW] = (instr_meta_t){INSTR_R, "fmvxw"};
   
-  instr_meta[FADDS] = (instr_meta_t){INSTR_R, "fadds"};
-  instr_meta[FSUBS] = (instr_meta_t){INSTR_R, "fsubs"};
-  instr_meta[FMULS] = (instr_meta_t){INSTR_R, "fmuls"};
-  instr_meta[FDIVS] = (instr_meta_t){INSTR_R, "fdivs"};
-  instr_meta[FSQRTS] = (instr_meta_t){INSTR_R, "fsqrts"};
+  instr_meta[FADDS] = (instr_meta_t){INSTR_R, "fadd"};
+  instr_meta[FSUBS] = (instr_meta_t){INSTR_R, "fsub"};
+  instr_meta[FMULS] = (instr_meta_t){INSTR_R, "fmul"};
+  instr_meta[FDIVS] = (instr_meta_t){INSTR_R, "fdiv"};
+  instr_meta[FSQRTS] = (instr_meta_t){INSTR_R, "fsqrt"};
   
-  instr_meta[FEQS] = (instr_meta_t){INSTR_R, "feqs"};
-  instr_meta[FLES] = (instr_meta_t){INSTR_R, "fles"};
+  instr_meta[FEQS] = (instr_meta_t){INSTR_R, "feq"};
+  instr_meta[FLES] = (instr_meta_t){INSTR_R, "fle"};
   
   instr_meta[FCVTWS] = (instr_meta_t){INSTR_R, "fcvtws"};
   instr_meta[FCVTSW] = (instr_meta_t){INSTR_R, "fcvtsw"};
   
-  instr_meta[FSGNJS] = (instr_meta_t){INSTR_R, "fsgnjs"};
-  instr_meta[FSGNJNS] = (instr_meta_t){INSTR_R, "fsgnjns"};
-  instr_meta[FSGNJXS] = (instr_meta_t){INSTR_R, "fsgnjxs"};
+  instr_meta[FSGNJS] = (instr_meta_t){INSTR_R, "fsgnj"};
+  instr_meta[FSGNJNS] = (instr_meta_t){INSTR_R, "fsgnjn"};
+  instr_meta[FSGNJXS] = (instr_meta_t){INSTR_R, "fsgnjx"};
     
   // finalize
   is_instr_meta_initialized = 1;  
