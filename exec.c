@@ -544,7 +544,7 @@ void exec_stepi(state_t *state){
       state->mem[s_addr+2] = srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)), 16);
       state->mem[s_addr+3] = srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)), 24);
     } else {
-      error("[*] UART write with SLW is prohibited.");
+      error("[*] UART write with FSW is prohibited.");
       exit(1);
     }
     break;    
