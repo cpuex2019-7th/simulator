@@ -551,12 +551,12 @@ void exec_stepi(state_t *state){
   case FMVWX:
     write_freg(state,
                ((instr_r_t *) instr)->rd,
-               ((freg_float) state->reg[((instr_r_t *) instr)->rs1]).f);
+               ((freg_float)state->reg[((instr_r_t *) instr)->rs1]).f);
     break;
   case FMVXW:
     write_reg(state,
               ((instr_r_t *) instr)->rd,
-              state->freg[((instr_r_t *) instr)->rs1].i);
+              ((freg_float)state->freg[((instr_r_t *) instr)->rs1]).i);
     break;
   case FADDS:
     write_freg(state,
