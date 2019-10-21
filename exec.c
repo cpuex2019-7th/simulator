@@ -596,7 +596,7 @@ void exec_stepi(state_t *state){
   case FCVTWS:
     write_reg(state,
               ((instr_r_t *) instr)->rd,
-              (int) (state->freg[((instr_r_t *) instr)->rs1].f));
+              round((state->freg[((instr_r_t *) instr)->rs1].f)));
     break;
   case FCVTSW:
     write_freg(state,
