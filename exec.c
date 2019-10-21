@@ -129,7 +129,7 @@ void exec_stepi(state_t *state){
     break;
     // TODO: refactor here with nested switch
   case LB:    
-    if((i_addr >> 24) != 0x7F){
+    if((srl(i_addr, 24)) != 0x7F){
       debug("Mem read (Byte): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
@@ -159,7 +159,7 @@ void exec_stepi(state_t *state){
     }
     break;
   case LH:
-    if((i_addr >> 24) != 0x7F){
+    if((srl(i_addr, 24)) != 0x7F){
       debug("Mem read (Half Word): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
@@ -189,7 +189,7 @@ void exec_stepi(state_t *state){
     }
     break;
   case LW:
-    if((i_addr >> 24) != 0x7F){
+    if((srl(i_addr, 24)) != 0x7F){
       debug("Mem read (Word): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
@@ -219,7 +219,7 @@ void exec_stepi(state_t *state){
     }
     break;
   case LBU:
-    if((i_addr >> 24) != 0x7F){
+    if((srl(i_addr, 24)) != 0x7F){
       debug("Mem read (Byte Unsigned): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
@@ -249,7 +249,7 @@ void exec_stepi(state_t *state){
     }
     break;
   case LHU:
-    if((i_addr >> 24) != 0x7F){
+    if((srl(i_addr, 24)) != 0x7F){
       debug("Mem read (Half Word Unsigned): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
@@ -279,7 +279,7 @@ void exec_stepi(state_t *state){
     }
     break;
   case SB:
-    if((s_addr >> 24) != 0x7F){
+    if((srl(s_addr, 24)) != 0x7F){
       debug("[*] Mem write (Byte): %02x to %08x\n",
             state->reg[((instr_s_t *) instr)->rs2] & 0xFF,
             s_addr);    
@@ -305,12 +305,12 @@ void exec_stepi(state_t *state){
     }
     break;
   case SH:
-    if((s_addr >> 24) != 0x7F){
+    if((srl(s_addr, 24)) != 0x7F){
       debug("[*] Mem write (Half word): %04x to %08x\n",
             state->reg[((instr_s_t *) instr)->rs2] & 0x00FF,
             s_addr);
       state->mem[s_addr] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
-      state->mem[s_addr+1] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 8;
+      state->mem[s_addr+1] = srl((state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)), 8);
     } else {
       debug("[*] UART write (Half word, but lower 1 byte will be written): %08x\n", s_addr);
       switch(s_addr & 0b11111111){
@@ -332,18 +332,18 @@ void exec_stepi(state_t *state){
     }
     break;
   case SW:
-    if((s_addr >> 24) != 0x7F){
+    if((srl(s_addr, 24)) != 0x7F){
       debug("[*] Mem write (Word): %08x to %08x (little endian: %02x %02x %02x %02x)\n",
             state->reg[((instr_s_t *) instr)->rs2],
             s_addr,
             state->reg[((instr_s_t *) instr)->rs2] & 0b11111111,
-            (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 8,
-            (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16)) >> 16,
-            (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24)) >> 24);
+            srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8), 8),
+            srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16), 16),
+            srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24), 24));
       state->mem[s_addr] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
-      state->mem[s_addr+1] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)) >> 8;
-      state->mem[s_addr+2] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16)) >> 16;
-      state->mem[s_addr+3] = (state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24)) >> 24;
+      state->mem[s_addr+1] = srl((state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)), 8);
+      state->mem[s_addr+2] = srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16), 16);
+      state->mem[s_addr+3] = srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24),  24);
     } else {
       debug("[*] UART write (Word, but lower 1 byte will be written): %08x\n", s_addr);
       switch(s_addr & 0b11111111){
@@ -520,7 +520,7 @@ void exec_stepi(state_t *state){
     /////////
 
   case FLW:
-    if((i_addr >> 24) != 0x7F){
+    if((srl(i_addr, 24)) != 0x7F){
       debug("Mem read (Float Word): from %08x\n", i_addr);      
       write_freg(state,
                  ((instr_i_t *) instr)->rd,
@@ -531,18 +531,18 @@ void exec_stepi(state_t *state){
     }
     break;
   case FSW:
-    if((s_addr >> 24) != 0x7F){
+    if((srl(s_addr, 24)) != 0x7F){
       debug("[*] Mem write (Float Word): %08x to %08x (little endian: %02x %02x %02x %02x)\n",
             state->freg[((instr_s_t *) instr)->rs2],
             s_addr,
             state->freg[((instr_s_t *) instr)->rs2].i & 0b11111111,
-            (state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)) >> 8,
-            (state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)) >> 16,
-            (state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)) >> 24);
+            srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)), 8),
+            srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)), 16),
+            srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)), 24));
       state->mem[s_addr] = state->freg[((instr_s_t *) instr)->rs2].i & 0b11111111;
-      state->mem[s_addr+1] = (state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)) >> 8;
-      state->mem[s_addr+2] = (state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)) >> 16;
-      state->mem[s_addr+3] = (state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)) >> 24;
+      state->mem[s_addr+1] = srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)), 8);
+      state->mem[s_addr+2] = srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)), 16);
+      state->mem[s_addr+3] = srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)), 24);
     } else {
       error("[*] UART write with SLW is prohibited.");
       exit(1);
