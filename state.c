@@ -5,7 +5,7 @@
 #include "exec.h"
 
 int get_uart_status(state_t *state){
-  char c = fgetc(state->ifp);
+  char c =  state->ifp == NULL? EOF : fgetc(state->ifp);
   if (c != EOF)
     fseek(state->ifp, -1, SEEK_CUR);
   return c == EOF? 0 : 1;
