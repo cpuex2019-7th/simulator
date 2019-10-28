@@ -14,7 +14,6 @@ int get_uart_status(state_t *state){
 void write_reg(state_t *state, int dest, int value){
   if (dest == 0){
     debug("Someone tried to write a value to zero register(x0). It will be ignored.");
-    exit_if_strict_mode(1);
   } else {
     state->reg[dest] = value;
   }
@@ -37,7 +36,8 @@ void init_state(state_t *state, int argc, char* argv[]){
 
   // last return address 
   state->reg[1] = INITIAL_X1;
-  
+
+  state->mem = malloc(MEM_SIZE * sizeof(uint8_t));
   for(int i=0; i<MEM_SIZE; i++)
     state->mem[i] = 0;
 

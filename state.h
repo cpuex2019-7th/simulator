@@ -4,7 +4,7 @@
 #include <stdlib.h>
 
 #define INITIAL_X1 0xff000000
-#define MEM_SIZE 0x100000
+#define MEM_SIZE 0x2000000
 
 typedef union {
   float f;
@@ -26,7 +26,7 @@ typedef struct {
   // basic structure
   int reg[32];
   freg_float freg[32];
-  uint8_t mem[MEM_SIZE];
+  uint8_t *mem;
   
   // for debug
   blist_t *blist;
