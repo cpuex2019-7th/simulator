@@ -1,6 +1,6 @@
 CC = gcc
 CFLAGS = -Wall -O
-LDFLAGS = 
+LDFLAGS = -lm
 SRCS = $(wildcard *.c)
 OBJS = $(filter-out disasm.o sim.o, $(SRCS:.c=.o))
 
