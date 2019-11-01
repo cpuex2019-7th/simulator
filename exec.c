@@ -510,7 +510,7 @@ void exec_stepi(state_t *state){
   case FSGNJXS:
     write_freg(state,
                ((instr_r_t *) instr)->rd,
-               ((freg_float)(((srl(state->freg[((instr_r_t *) instr)->rs1].i, 31) ^ srl(state->freg[((instr_r_t *) instr)->rs2].i, 31)) << 31) & (state->freg[((instr_r_t *) instr)->rs1].i & ~(0b1 << 31)))).f);
+               ((freg_float)(((srl(state->freg[((instr_r_t *) instr)->rs1].i, 31) ^ srl(state->freg[((instr_r_t *) instr)->rs2].i, 31)) << 31) | (state->freg[((instr_r_t *) instr)->rs1].i & ~(0b1 << 31)))).f);
     break;
     
     /////////
