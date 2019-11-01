@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <fenv.h>
 
 #include "state.h"
 #include "instr.h"
@@ -11,6 +12,7 @@
 int main(int argc, char* argv[]){
   state_t state;
   set_logging_level(ERROR);
+  fesetround(FE_TONEAREST);
   init_state(&state, argc, argv);
 
   // main execution loop
