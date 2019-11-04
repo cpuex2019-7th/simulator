@@ -17,9 +17,8 @@ void update_slist(state_t *state, uint32_t addr){
     if(seek->offset == addr){
       seek->called_num += 1;
       return;
-    } else {
-      seek = seek->next;
-    }
+    } 
+    seek = seek->next;
   }
 }
 
@@ -181,7 +180,7 @@ void init_state(state_t *state, int argc, char* argv[]){
       new_elm->next = state->blist;
       new_elm->addr = baddr;
       state->blist = new_elm;
-    } else if (strcmp(argv[i], "--symbol") == 0){
+    } else if (strcmp(argv[i], "--symbols") == 0){
       // loading symbol information
       if (i == argc-1){
         error("No symbol list is specified.");

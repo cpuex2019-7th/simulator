@@ -36,7 +36,7 @@ make
   - You can set debugging level.
 - `--strict`
   - if this directive is set, this simulator quits when any errors occur.
-- `--symbol <filename>`
+- `--symbols <filename>`
   - if this directive is set, this simulator use it as a hint of function definition(s).
 - `--statout <filename>`
   - if this directive is set, this simulator outputs statistics of the simulation at the end of execution.
