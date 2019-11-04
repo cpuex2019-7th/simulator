@@ -30,10 +30,10 @@ int main(int argc, char* argv[]){
     time_t t = time(NULL);
     fprintf(output, "---------------------\n");
     fprintf(output, "[*] Executed at: %s", ctime(&t));
-    fprintf(output, "[*] Executable: %s\n", state.filename);
+    fprintf(output, "[*] Executable filename: %s\n", state.filename);
     fprintf(output, "[*] #(instructions): %lu\n", state.length/4);
-    fprintf(output, "[*] Total Execution Steps: %llu\n", state.step_num);
-    fprintf(output, "[*] Range of Values of Registers (as signed int)\n");
+    fprintf(output, "[*] #(total execution steps): %llu\n", state.step_num);
+    fprintf(output, "[*] Range of values of registers (as signed int)\n");
     for(int i=0; i < 32; i++){
       fprintf(output, "\tx%02d: [%d, %d]\n", i, state.reg_min[i], state.reg_max[i]);
     }    

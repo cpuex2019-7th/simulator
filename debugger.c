@@ -21,9 +21,6 @@ void print_instr(state_t *state){
 }
 
 void show_state(state_t* state, FILE *fp){
-  if(get_logging_level() > DEBUG)
-    return;
-  
   fprintf(fp, "[*] Registers: \n");
   for (int i=0; i < 16; i++){
     fprintf(fp, "\tx%d\t(%s)\t\t0x%08x\t/\tx%d\t(%s)\t0x%08x\n",
