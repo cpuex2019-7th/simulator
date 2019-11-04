@@ -184,12 +184,15 @@ void init_state(state_t *state, int argc, char* argv[]){
       char symbol_buf[80];
       int offset_buf;
       while (fscanf(slistfp, "%s %d", symbol_buf, &offset_buf) == 2 ) {
+        // TODO: sort on insertion
         slist_t *new_elm = malloc(sizeof(slist_t));
+        
         new_elm->label = malloc((strlen(symbol_buf)+1) * sizeof(char));
         strcpy(new_elm->label, symbol_buf);        
         new_elm->offset = offset_buf;
         new_elm->called_num = 0;
         new_elm->next = state->slist;
+        
         state->slist = new_elm;        
       }      
     } else {

@@ -49,14 +49,20 @@ void show_state(state_t* state, FILE *fp){
 
 static char *previous_cmd = NULL;
 
+// returns ...
+// 0 when step execution finishes
+// 1 when step execution continues
 int run_debugger(state_t* state){
   if(get_logging_level() > DEBUG)
     return 0;
 
+  // show current status
   printf("Stopped at %u\n", state->pc);
   printf("------------------\n");  
   show_state(state, stdout);
-  printf("------------------\n");  
+  printf("------------------\n");
+
+  // simple cmd interface
   while(1){
     printf("> ");
     
@@ -68,7 +74,11 @@ int run_debugger(state_t* state){
     // log the command
     if(strcmp(cmd, "") == 0){
       free(cmd);
-      cmd = previous_cmd;
+      if (previous_cmd != NULL){
+        cmd = previous_cmd;
+      } else {
+        cmd = "help";
+      }
     } else {
       if (previous_cmd != NULL){        
         free(previous_cmd);
@@ -80,7 +90,7 @@ int run_debugger(state_t* state){
     if(strcmp(cmd, "stepi") == 0){
       return 1;
     } else if(strcmp(cmd, "help") == 0){
-      // TODO
+      printf("stepi, help, examine, stack, next, quit\n");
     } else if(strncmp(cmd, "examine ", 8) == 0){
       // TODO
     } else if(strcmp(cmd, "stack") == 0){
