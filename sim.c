@@ -25,7 +25,7 @@ int main(int argc, char* argv[]){
   
   // output statistics
   if (state.sfp != NULL || get_logging_level() <= DEBUG){
-    FILE *output = state.sfp != NULL? state.sfp : stderr;
+    FILE *output = state.sfp != NULL? state.sfp : stdout;
     
     time_t t = time(NULL);
     fprintf(output, "---------------------\n");
