@@ -4,6 +4,8 @@
 #include "logging.h"
 #include "exec.h"
 
+// uart utils
+//////////////
 int get_uart_status(state_t *state){
   char c =  state->ifp == NULL? EOF : fgetc(state->ifp);
   if (c != EOF)
@@ -11,10 +13,12 @@ int get_uart_status(state_t *state){
   return c == EOF? 0 : 1;
 }
 
+// controller of symbol list
+//////////////
 void update_slist(state_t *state, uint32_t addr){
   slist_t *seek = state->slist;
   while(seek != NULL){
-    if(seek->offset == addr){
+    if(seek->addr == addr){
       seek->called_num += 1;
       return;
     } 
@@ -22,6 +26,29 @@ void update_slist(state_t *state, uint32_t addr){
   }
 }
 
+void insert_new_symbol(slist_t **slist, char *label, uint32_t addr){
+  // preapre an element
+  slist_t *new_elm = malloc(sizeof(slist_t));        
+  new_elm->label = malloc((strlen(label)+1) * sizeof(char));
+  strcpy(new_elm->label, label);        
+  new_elm->addr = addr;
+  new_elm->called_num = 0;
+  new_elm->next = NULL;
+
+  slist_t **seek = slist;
+  while (*seek != NULL){
+    if(addr < (*seek)->addr){
+      break;
+    } else {
+      seek = &((*seek)->next);
+    }
+  }
+  new_elm->next = *seek;
+  (*seek) = new_elm;
+}
+
+// controller of registers
+//////////////
 void write_reg(state_t *state, int dest, int value){
   if (dest == 0){
     debug("Someone tried to write a value to zero register(x0). It will be ignored.");
@@ -36,6 +63,8 @@ void write_freg(state_t *state, int dest, float value){
   state->freg[dest].f = value;
 }
 
+// controller of memory
+//////////////
 uint8_t read_mem_uint8(state_t *state, int addr){
   if (0 <= addr && addr < state->memsize) {
     return *(uint8_t *)(state->mem + addr);
@@ -86,6 +115,8 @@ void write_mem(state_t *state, int addr, char value){
   }
 }
 
+// controller of the state of simulator
+//////////////
 void init_state(state_t *state, int argc, char* argv[]){
   state->pfp = NULL;
   state->pc = 0;
@@ -206,17 +237,9 @@ void init_state(state_t *state, int argc, char* argv[]){
       }
       
       char symbol_buf[80];
-      int offset_buf;
-      while (fscanf(slistfp, "%s %d", symbol_buf, &offset_buf) == 2 ) {
-        slist_t *new_elm = malloc(sizeof(slist_t));
-        
-        new_elm->label = malloc((strlen(symbol_buf)+1) * sizeof(char));
-        strcpy(new_elm->label, symbol_buf);        
-        new_elm->offset = offset_buf;
-        new_elm->called_num = 0;
-        new_elm->next = state->slist;
-        
-        state->slist = new_elm;        
+      int addr_buf;
+      while (fscanf(slistfp, "%s %d", symbol_buf, &addr_buf) == 2 ) {
+        insert_new_symbol(&(state->slist), symbol_buf, addr_buf);
       }      
     } else {
       // argument should be .bin filepath

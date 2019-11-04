@@ -19,7 +19,7 @@ typedef struct _breakpoint_list {
 typedef struct _symbol_list {
   char *label;
   // where is this symbol?
-  uint32_t offset;
+  uint32_t addr;
   // how many times jump instruction for this symbol occured?
   uint32_t called_num; 
   struct _symbol_list *next;

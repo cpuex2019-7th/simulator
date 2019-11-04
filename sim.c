@@ -45,7 +45,7 @@ int main(int argc, char* argv[]){
       fprintf(output, "[*] #(function calls): \n");
       slist_t *seek = state.slist;
       while (seek != NULL){
-        fprintf(output, "\t%s\tat 0x%08x: %u \n", seek->label, seek->offset, seek->called_num);
+        fprintf(output, "\t%s\tat 0x%08x: %u \n", seek->label, seek->addr, seek->called_num);
         seek = seek->next;
       }
     }
