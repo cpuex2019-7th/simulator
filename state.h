@@ -3,6 +3,8 @@
 #include <stdint.h>
 #include <stdlib.h>
 
+#include "symbols.h"
+
 #define INITIAL_X1 0xff000000
 #define MEM_SIZE 0x2000000
 
@@ -15,15 +17,6 @@ typedef struct _breakpoint_list {
   uint32_t addr;  
   struct _breakpoint_list *next;
 } blist_t;
-
-typedef struct _symbol_list {
-  char *label;
-  // where is this symbol?
-  uint32_t addr;
-  // how many times jump instruction for this symbol occured?
-  uint32_t called_num; 
-  struct _symbol_list *next;
-} slist_t;
 
 typedef struct { 
   // program
@@ -60,7 +53,6 @@ typedef struct {
 } state_t;
 
 void init_state(state_t*, int, char**);
-void update_slist(state_t*, uint32_t);
 void write_reg(state_t*, int, int);
 void write_freg(state_t *, int, float);
 void write_mem(state_t *, int, char);

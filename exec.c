@@ -523,7 +523,7 @@ void exec_stepi(state_t *state){
   state->pc = jump_enabled?  jump_dest : state->pc + 4;
   
   if (jump_enabled && state->slist != NULL)
-    update_slist(state, jump_dest);
+    update_slist(state->slist, jump_dest);
   
   // finalize
   free(instr);

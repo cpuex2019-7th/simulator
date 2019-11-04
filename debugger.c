@@ -5,12 +5,11 @@
 #include "instr.h"
 #include "disasmutil.h"
 
-void print_instr(state_t *state){
+void print_current_instr(state_t *state){
   char *buf[4];
   fseek(state->pfp, (int) state->pc, SEEK_SET);
   fread(buf, 4, 4, state->pfp);
-  int iraw = *(int*)buf;
-  
+  int iraw = *(int*)buf;  
   instr_t *instr = fetch_and_decode_once(state);
 
   // disassemble
@@ -18,28 +17,16 @@ void print_instr(state_t *state){
   disasm(instr, state->pc, detail, 100);
 
   // resolve label information with .symbols file
+  // resolve label information with .symbols file
   char *label = NULL;
-  int offset = 0;
-  
-  if (state->slist != NULL) {
-    slist_t *seek = state->slist;
-    while (seek != NULL){
-      if(seek->addr <= state->pc){
-        label = seek->label;
-        offset = state->pc - seek->addr;
-        break;
-      } else {
-        seek = seek->next;
-      }
-    }
+  uint32_t offset = 0;
+  get_label_and_offset(state->slist, state->pc, &label, &offset);
+    
+  if (label == NULL){
+    label = "<filebase>";
+    offset = state->pc;
   }
-  
-  // show result
-  if (label != NULL){
-    printf("0x%08x(%s+0x%08x):\t0x%08x\t%s\n", state->pc, label, offset, iraw, detail);
-  } else {
-    printf("0x%08x:\t0x%08x\t%s\n", state->pc, iraw, detail);
-  }
+  printf("0x%08x(%20s+0x%08x):\t0x%08x\t%s\n", state->pc, label, offset, iraw, detail);
 
   free(instr);
 }
@@ -66,7 +53,7 @@ void show_state(state_t* state, FILE *fp){
   }
   if(state->pc < state->length){
     fprintf(fp, "[*] Next instruction: \n");  
-    print_instr(state);
+    print_current_instr(state);
   }
 }
 

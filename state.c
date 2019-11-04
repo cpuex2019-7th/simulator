@@ -3,6 +3,7 @@
 #include "state.h"
 #include "logging.h"
 #include "exec.h"
+#include "symbols.h"
 
 // uart utils
 //////////////
@@ -11,40 +12,6 @@ int get_uart_status(state_t *state){
   if (c != EOF)
     fseek(state->ifp, -1, SEEK_CUR);
   return c == EOF? 0 : 1;
-}
-
-// controller of symbol list
-//////////////
-void update_slist(state_t *state, uint32_t addr){
-  slist_t *seek = state->slist;
-  while(seek != NULL){
-    if(seek->addr == addr){
-      seek->called_num += 1;
-      return;
-    } 
-    seek = seek->next;
-  }
-}
-
-void insert_new_symbol(slist_t **slist, char *label, uint32_t addr){
-  // preapre an element
-  slist_t *new_elm = malloc(sizeof(slist_t));        
-  new_elm->label = malloc((strlen(label)+1) * sizeof(char));
-  strcpy(new_elm->label, label);        
-  new_elm->addr = addr;
-  new_elm->called_num = 0;
-  new_elm->next = NULL;
-
-  slist_t **seek = slist;
-  while (*seek != NULL){
-    if(addr < (*seek)->addr){
-      break;
-    } else {
-      seek = &((*seek)->next);
-    }
-  }
-  new_elm->next = *seek;
-  (*seek) = new_elm;
 }
 
 // controller of registers
