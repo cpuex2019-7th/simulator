@@ -114,8 +114,10 @@ void init_state(state_t *state, int argc, char* argv[]){
   
   // process the arguments
   for (int i=1; i < argc; i++){
-    if (strcmp(argv[i], "-i")==0){
+    if (strcmp(argv[i], "--input") == 0
+        || strcmp(argv[i], "-i")==0){
       // set source of uart input
+      ///////////////
       if (i == argc-1){
         error("No input file is specified.");
         exit(1);
@@ -125,8 +127,10 @@ void init_state(state_t *state, int argc, char* argv[]){
         error("Cannot open input destination.");
         exit(1);
       }
-    } else if (strcmp(argv[i], "-o")==0){
+    } else if (strcmp(argv[i], "--output") == 0
+               || strcmp(argv[i], "-o")==0){
       // set target of uart output
+      ///////////////
       if (i == argc-1){
         error("No output file is specified.");
         exit(1);
@@ -138,6 +142,7 @@ void init_state(state_t *state, int argc, char* argv[]){
       }
     } else if (strcmp(argv[i], "--statout")==0){
       // set output file of statistics
+      ///////////////
       if (i == argc-1){
         error("No statout file is specified.");
         exit(1);
@@ -149,6 +154,7 @@ void init_state(state_t *state, int argc, char* argv[]){
       }
     } else if (strcmp(argv[i], "--memsize")==0){
       // set output file of statistics
+      ///////////////
       if (i == argc-1){
         error("No memory is specified.");
         exit(1);
@@ -162,16 +168,20 @@ void init_state(state_t *state, int argc, char* argv[]){
       }
     } else if (strcmp(argv[i], "--debug")==0){
       // set logging level to debug
+      ///////////////
       set_logging_level(DEBUG);
     } else if (strcmp(argv[i], "--info")==0){
       // set logging level to info
+      ///////////////
       set_logging_level(INFO);
     } else if (strcmp(argv[i], "--strict")==0){
       // set execution mode to strict
+      ///////////////
       set_execution_mode(1); // set the execution strict
     } else if (strcmp(argv[i], "--breakpoint") == 0
                || strcmp(argv[i], "-b") == 0){
       // set breakpoint
+      ///////////////
       if (i == argc-1){
         error("No address for a new breakpoint is specified.");
         exit(1);
@@ -184,6 +194,7 @@ void init_state(state_t *state, int argc, char* argv[]){
       state->blist = new_elm;
     } else if (strcmp(argv[i], "--symbols") == 0){
       // loading symbol information
+      ///////////////
       if (i == argc-1){
         error("No symbol list is specified.");
         exit(1);
@@ -197,7 +208,6 @@ void init_state(state_t *state, int argc, char* argv[]){
       char symbol_buf[80];
       int offset_buf;
       while (fscanf(slistfp, "%s %d", symbol_buf, &offset_buf) == 2 ) {
-        // TODO: sort on insertion
         slist_t *new_elm = malloc(sizeof(slist_t));
         
         new_elm->label = malloc((strlen(symbol_buf)+1) * sizeof(char));
@@ -209,7 +219,8 @@ void init_state(state_t *state, int argc, char* argv[]){
         state->slist = new_elm;        
       }      
     } else {
-      // should be .bin filepath
+      // argument should be .bin filepath
+      ///////////////
       if(state->pfp != NULL){
         error("Two or more executables were specified.");
         exit(1);
