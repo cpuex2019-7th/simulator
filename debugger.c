@@ -13,9 +13,33 @@ void print_instr(state_t *state){
   
   instr_t *instr = fetch_and_decode_once(state);
 
+  // disassemble
   char detail[100];
   disasm(instr, state->pc, detail, 100);
-  printf("0x%08x:\t0x%08x\t%s\n", state->pc, iraw, detail);
+
+  // resolve label information with .symbols file
+  char *label = NULL;
+  int offset = 0;
+  
+  if (state->slist != NULL) {
+    slist_t *seek = state->slist;
+    while (seek != NULL){
+      if(seek->addr <= state->pc){
+        label = seek->label;
+        offset = state->pc - seek->addr;
+        break;
+      } else {
+        seek = seek->next;
+      }
+    }
+  }
+  
+  // show result
+  if (label != NULL){
+    printf("0x%08x(%s+0x%08x):\t0x%08x\t%s\n", state->pc, label, offset, iraw, detail);
+  } else {
+    printf("0x%08x:\t0x%08x\t%s\n", state->pc, iraw, detail);
+  }
 
   free(instr);
 }

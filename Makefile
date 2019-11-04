@@ -15,7 +15,7 @@ sim: $(OBJS) sim.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $^ $(LDFLAGS)
+	$(CC) $(CFLAGS) -c $^ 
 
 clean:
 	$(RM) $(OBJS) disasm.o sim.o disasm sim *~
