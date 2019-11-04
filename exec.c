@@ -37,26 +37,23 @@ int is_here_breakpoint(state_t *state){
   return 0;
 }
 
-int exec_hook_pre(state_t *state){
-  if(state->length < state->pc+4 || state->pc == INITIAL_X1){
-    info("Execution Finished.");
-    state->is_running = 0;
-    // for debug
-    show_state(state);
-    return 1;
-  }  
-  
+int exec_hook_pre(state_t *state){  
   info("Executing next instruction ... (PC=%08x)", state->pc);
   if(is_step_execution_enabled == 1
      || is_here_breakpoint(state) == 1){
     is_step_execution_enabled = run_debugger(state);
   }
-
   return 0;
 }
 
 void exec_hook_post(state_t *state){
-  // TODO
+  state->step_num += 1;
+  if(state->length < state->pc+4 || state->pc == INITIAL_X1){
+    info("Execution Finished.");
+    state->is_running = 0;
+    // for debug
+    show_state(state);
+  }  
 }
 
 void exec_stepi(state_t *state){
@@ -132,7 +129,7 @@ void exec_stepi(state_t *state){
       debug("Mem read (Byte): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
-                SIGNEXT(*(uint8_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 7));
+                SIGNEXT(read_mem_uint8(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 7));
     } else {
       error("[*] UART read with LB is prohibited.");
       exit_if_strict_mode(state, 1);
@@ -143,7 +140,7 @@ void exec_stepi(state_t *state){
       debug("Mem read (Half Word): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
-                SIGNEXT(*(uint16_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 15));
+                SIGNEXT(read_mem_uint16(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 15));
     } else {
       error("[*] UART read with FH is prohibited.");
       exit_if_strict_mode(state, 1);
@@ -154,7 +151,7 @@ void exec_stepi(state_t *state){
       debug("Mem read (Word): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
-                *(uint32_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
+                read_mem_uint32(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
     } else {
       error("[*] UART read with LW is prohibited.");
       exit_if_strict_mode(state, 1);
@@ -165,7 +162,7 @@ void exec_stepi(state_t *state){
       debug("Mem read (Byte Unsigned): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
-                (uint32_t) *(uint8_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
+                (uint32_t) read_mem_uint8(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
       // no sign extention
     } else {
       debug("[*] UART read: %08x\n", i_addr & 0b11111111);
@@ -195,7 +192,7 @@ void exec_stepi(state_t *state){
       debug("Mem read (Half Word Unsigned): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
-                (uint32_t) *(uint16_t *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
+                (uint32_t) read_mem_uint16(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
       // no sign extention
     } else {
       error("[*] UART read with LHU is prohibited.");
@@ -207,7 +204,7 @@ void exec_stepi(state_t *state){
       debug("[*] Mem write (Byte): %02x to %08x\n",
             state->reg[((instr_s_t *) instr)->rs2] & 0xFF,
             s_addr);    
-      state->mem[s_addr] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
+      write_mem(state, s_addr, state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
     } else {
       debug("[*] UART write (Byte): %08x\n", s_addr);
       switch(s_addr & 0b11111111){
@@ -233,8 +230,8 @@ void exec_stepi(state_t *state){
       debug("[*] Mem write (Half word): %04x to %08x\n",
             state->reg[((instr_s_t *) instr)->rs2] & 0x00FF,
             s_addr);
-      state->mem[s_addr] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
-      state->mem[s_addr+1] = srl((state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)), 8);
+      write_mem(state, s_addr, state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
+      write_mem(state, s_addr+1, srl((state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)), 8));
     } else {
       error("[*] UART write with SH is prohibited.");
       exit_if_strict_mode(state, 1);
@@ -249,10 +246,10 @@ void exec_stepi(state_t *state){
             srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8), 8),
             srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16), 16),
             srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24), 24));
-      state->mem[s_addr] = state->reg[((instr_s_t *) instr)->rs2] & 0b11111111;
-      state->mem[s_addr+1] = srl((state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)), 8);
-      state->mem[s_addr+2] = srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16), 16);
-      state->mem[s_addr+3] = srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24),  24);
+      write_mem(state, s_addr, state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
+      write_mem(state, s_addr+1, srl((state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)), 8));
+      write_mem(state, s_addr+2, srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16), 16));
+      write_mem(state, s_addr+3, srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24),  24));
     } else {
       error("[*] UART write with SW is prohibited.");
       exit_if_strict_mode(state, 1);
@@ -418,7 +415,7 @@ void exec_stepi(state_t *state){
       debug("Mem read (Float Word): from %08x\n", i_addr);      
       write_freg(state,
                  ((instr_i_t *) instr)->rd,
-                 *(float *)(state->mem + state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
+                 read_mem_float(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
     } else {
       error("[*] UART read with FLW is prohibited.");
       exit_if_strict_mode(state, 1);
@@ -433,10 +430,10 @@ void exec_stepi(state_t *state){
             srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)), 8),
             srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)), 16),
             srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)), 24));
-      state->mem[s_addr] = state->freg[((instr_s_t *) instr)->rs2].i & 0b11111111;
-      state->mem[s_addr+1] = srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)), 8);
-      state->mem[s_addr+2] = srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)), 16);
-      state->mem[s_addr+3] = srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)), 24);
+      write_mem(state, s_addr, state->freg[((instr_s_t *) instr)->rs2].i & 0b11111111);
+      write_mem(state, s_addr+1, srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)), 8));
+      write_mem(state, s_addr+2, srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)), 16));
+      write_mem(state, s_addr+3, srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)), 24));
     } else {
       error("[*] UART write with FSW is prohibited.");
       exit(1);

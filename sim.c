@@ -17,10 +17,15 @@ int main(int argc, char* argv[]){
 
   // main execution loop
   while(state.is_running){
-    if(exec_hook_pre(&state) == 1)
-      break;
+    exec_hook_pre(&state);
     exec_stepi(&state);
     exec_hook_post(&state);
+  }
+  
+  // output statistics
+  if (state.sfp != NULL){
+    fprintf(state.sfp, "Input: %s\n", state.filename);
+    fprintf(state.sfp, "Total Execution Steps: %d\n", state.step_num);
   }
 
   // finalize
@@ -32,5 +37,5 @@ int main(int argc, char* argv[]){
     fclose(state.ofp);
 
   printf("%d", state.reg[10]);
-  return 0; // x10 register
+  return 0;
 }
