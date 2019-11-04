@@ -58,7 +58,8 @@ typedef struct {
   FILE *ifp, *ofp;
 } state_t;
 
-void init_state(state_t *state, int, char**);
+void init_state(state_t*, int, char**);
+void update_slist(state_t*, uint32_t);
 void write_reg(state_t*, int, int);
 void write_freg(state_t *, int, float);
 void write_mem(state_t *, int, char);

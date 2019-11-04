@@ -11,6 +11,18 @@ int get_uart_status(state_t *state){
   return c == EOF? 0 : 1;
 }
 
+void update_slist(state_t *state, uint32_t addr){
+  slist_t *seek = state->slist;
+  while(seek != NULL){
+    if(seek->offset == addr){
+      seek->called_num += 1;
+      return;
+    } else {
+      seek = seek->next;
+    }
+  }
+}
+
 void write_reg(state_t *state, int dest, int value){
   if (dest == 0){
     debug("Someone tried to write a value to zero register(x0). It will be ignored.");

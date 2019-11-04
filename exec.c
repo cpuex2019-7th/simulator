@@ -62,7 +62,7 @@ void exec_stepi(state_t *state){
 
 
   // jump destination
-  int jump_dest = 0;
+  uint32_t jump_dest = 0;
   int jump_enabled = 0;
 
   int s_addr = state->reg[((instr_s_t *) instr)->rs1] + ((instr_s_t *) instr)->imm;
@@ -521,6 +521,9 @@ void exec_stepi(state_t *state){
 
   // select the next pc
   state->pc = jump_enabled?  jump_dest : state->pc + 4;
+  
+  if (jump_enabled && state->slist != NULL)
+    update_slist(state, jump_dest);
   
   // finalize
   free(instr);

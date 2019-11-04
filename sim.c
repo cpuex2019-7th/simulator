@@ -38,6 +38,16 @@ int main(int argc, char* argv[]){
       fprintf(output, "\tx%02d: [%d, %d]\n", i, state.reg_min[i], state.reg_max[i]);
     }    
     show_state(&state, output);
+    
+    if (state.slist != NULL){
+      fprintf(output, "[*] #(function calls): \n");
+      slist_t *seek = state.slist;
+      while (seek != NULL){
+        fprintf(output, "\t%s\tat 0x%08x: %u \n", seek->label, seek->offset, seek->called_num);
+        seek = seek->next;
+      }
+    }
+    
     fprintf(output, "---------------------\n");
   }
 

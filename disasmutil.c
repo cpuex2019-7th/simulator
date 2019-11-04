@@ -267,7 +267,7 @@ void disasm(instr_t *instr, uint32_t pc, char *dest, size_t s){
       }
       break;
     case INSTR_B:
-      snprintf(dest, s, "%s %s, %s, %d ; jumps to %08x", instr_meta[instr->op].label,
+      snprintf(dest, s, "%s %s, %s, %d ; jumps to 0x%08x", instr_meta[instr->op].label,
                r2t(((instr_b_t*) instr)->rs1),
                r2t(((instr_b_t*) instr)->rs2),
                ((instr_b_t*) instr)->imm,
@@ -279,7 +279,7 @@ void disasm(instr_t *instr, uint32_t pc, char *dest, size_t s){
                srl((((instr_u_t*) instr)->imm), 12));
       break;
     case INSTR_J:
-      snprintf(dest, s, "%s %s, %d ; jumps to %08x", instr_meta[instr->op].label,
+      snprintf(dest, s, "%s %s, %d ; jumps to 0x%08x", instr_meta[instr->op].label,
                r2t(((instr_j_t*) instr)->rd),
                ((instr_j_t*) instr)->imm,
                pc + ((instr_j_t*) instr)->imm);
