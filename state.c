@@ -16,6 +16,8 @@ void write_reg(state_t *state, int dest, int value){
     debug("Someone tried to write a value to zero register(x0). It will be ignored.");
   } else {
     state->reg[dest] = value;
+    state->reg_min[dest] = state->reg_min[dest] <= value? state->reg_min[dest] : value;
+    state->reg_max[dest] = value <= state->reg_max[dest]? state->reg_max[dest] : value;
   }
 }
 

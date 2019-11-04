@@ -19,35 +19,34 @@ void print_instr(state_t *state){
 
   free(instr);
 }
-void show_state(state_t* state){
+
+void show_state(state_t* state, FILE *fp){
   if(get_logging_level() > DEBUG)
     return;
   
-  printf("------------------\n");
-  printf("[*] Registers: \n");
+  fprintf(fp, "[*] Registers: \n");
   for (int i=0; i < 16; i++){
-    printf("\tx%d\t(%s)\t\t0x%08x\t/\tx%d\t(%s)\t0x%08x\n",
-           i,
-           r2t(i),
-           state->reg[i],
-           i+16,
-           r2t(i+16),
-           state->reg[i+16]);
+    fprintf(fp, "\tx%d\t(%s)\t\t0x%08x\t/\tx%d\t(%s)\t0x%08x\n",
+            i,
+            r2t(i),
+            state->reg[i],
+            i+16,
+            r2t(i+16),
+            state->reg[i+16]);
   }
   for (int i=0; i < 16; i++){
-    printf("\tf%d\t(%s)\t\t%f\t/\tf%d\t(%s)\t%f\n",
-           i,
-           r2tf(i),
-           state->freg[i].f,
-           i+16,
-           r2tf(i+16),
-           state->freg[i+16].f);
+    fprintf(fp, "\tf%d\t(%s)\t\t%f\t/\tf%d\t(%s)\t%f\n",
+            i,
+            r2tf(i),
+            state->freg[i].f,
+            i+16,
+            r2tf(i+16),
+            state->freg[i+16].f);
   }
   if(state->pc < state->length){
-    printf("[*] Next instruction: \n");  
+    fprintf(fp, "[*] Next instruction: \n");  
     print_instr(state);
   }
-  printf("------------------\n");
 }
 
 
@@ -58,7 +57,9 @@ int run_debugger(state_t* state){
     return 0;
 
   printf("Stopped at %u\n", state->pc);
-  show_state(state);
+  printf("------------------\n");  
+  show_state(state, stdout);
+  printf("------------------\n");  
   while(1){
     printf("> ");
     

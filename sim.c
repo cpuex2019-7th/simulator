@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <fenv.h>
+#include <time.h>
 
 #include "state.h"
 #include "instr.h"
@@ -23,9 +24,21 @@ int main(int argc, char* argv[]){
   }
   
   // output statistics
-  if (state.sfp != NULL){
-    fprintf(state.sfp, "Input: %s\n", state.filename);
-    fprintf(state.sfp, "Total Execution Steps: %d\n", state.step_num);
+  if (state.sfp != NULL || get_logging_level() <= DEBUG){
+    FILE *output = state.sfp != NULL? state.sfp : stderr;
+    
+    time_t t = time(NULL);
+    fprintf(output, "---------------------\n");
+    fprintf(output, "[*] Executed at: %s", ctime(&t));
+    fprintf(output, "[*] Executable: %s\n", state.filename);
+    fprintf(output, "[*] #(instructions): %lu\n", state.length/4);
+    fprintf(output, "[*] Total Execution Steps: %llu\n", state.step_num);
+    fprintf(output, "[*] Range of Values of Registers (as signed int)\n");
+    for(int i=0; i < 32; i++){
+      fprintf(output, "\tx%02d: [%d, %d]\n", i, state.reg_min[i], state.reg_max[i]);
+    }    
+    show_state(&state, output);
+    fprintf(output, "---------------------\n");
   }
 
   // finalize

@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include <math.h>
 
 #include "state.h"
@@ -17,8 +18,8 @@ int sra(int x, int n) {
 
 void exit_if_strict_mode(state_t *state, int code){
   if (is_strict){
-    // for debug
-    show_state(state);    
+    printf("Exit State:\n");
+    show_state(state, stdout);    
     exit(code);
   }
 }
@@ -48,11 +49,10 @@ int exec_hook_pre(state_t *state){
 
 void exec_hook_post(state_t *state){
   state->step_num += 1;
+  
   if(state->length < state->pc+4 || state->pc == INITIAL_X1){
     info("Execution Finished.");
     state->is_running = 0;
-    // for debug
-    show_state(state);
   }  
 }
 
