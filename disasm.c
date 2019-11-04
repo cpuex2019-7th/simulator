@@ -8,12 +8,14 @@
 int main(int argc, char* argv[]){
   state_t state;
   state.pfp = NULL;
-  int is_verbose = 0;
+  int verbose_level = 0;
 
   // load state
   for (int i=1; i < argc; i++){
     if (strcmp(argv[i], "-v")==0){
-      is_verbose = 1;
+      verbose_level = 1;
+    } else if (strcmp(argv[i], "-vv")==0){
+      verbose_level = 2;
     } else if (strcmp(argv[i], "--symbols") == 0){
       // loading symbol information
       ///////////////
@@ -71,12 +73,17 @@ int main(int argc, char* argv[]){
     }
     
     // show result
-    if (is_verbose){
+    switch (verbose_level){
+    case 1:
+      printf("0x%08x:\t0x%08x\t%s\n", state.pc, iraw, detail);
+      break;
+    case 2:
       printf("0x%08x(%20s+0x%08x):\t0x%08x\t%s\n", state.pc, label, offset, iraw, detail);
-    } else {
+      break;
+    default:
       printf("%s\n", detail);
-    }
 
+    }
     free(instr);
   }
   return 0;
