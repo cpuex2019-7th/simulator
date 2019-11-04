@@ -8,14 +8,29 @@ You can use this simulator by the following commands:
 
 ```sh
 make install
-./cpuex_sim <filename of RISC-V executable>
+cpuex_sim <filename of RISC-V executable>
 ```
 
 If you'd like to execute step by step, the following command will help you:
 
 ```sh
 make install
-./cpuex_sim <filename of RISC-V executable> --breakpoint 0 --debug
+cpuex_sim <filename of RISC-V executable> --breakpoint 0 --debug
+```
+
+If you want to disassemble the binary, you can do it with following commands.
+
+```
+make install
+cpuex_disasm <filename of RISC-V executable> # quietly
+cpuex_disasm <filename of RISC-V executable> -v # verbosely
+```
+
+When you have symbol information `cpuex_asm` omits, you can use it as follows.
+
+```
+make install
+cpuex_disasm <filename of RISC-V executable> --symbols <.symbols file> -vv
 ```
 
 ## Test
