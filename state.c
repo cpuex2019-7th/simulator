@@ -37,7 +37,7 @@ void write_freg(state_t *state, int dest, float value){
 }
 
 uint8_t read_mem_uint8(state_t *state, int addr){
-  if (0 <= addr && addr < MEM_SIZE) {
+  if (0 <= addr && addr < state->memsize) {
     return *(uint8_t *)(state->mem + addr);
   } else {
     error("SIGSEGV was thrown.");
@@ -47,7 +47,7 @@ uint8_t read_mem_uint8(state_t *state, int addr){
 }
 
 uint16_t read_mem_uint16(state_t *state, int addr){
-  if (0 <= addr && addr < MEM_SIZE) {
+  if (0 <= addr && addr < state->memsize) {
     return *(uint16_t *)(state->mem + addr);
   } else {
     error("SIGSEGV was thrown.");
@@ -57,7 +57,7 @@ uint16_t read_mem_uint16(state_t *state, int addr){
 }
 
 uint32_t read_mem_uint32(state_t *state, int addr){
-  if (0 <= addr && addr < MEM_SIZE) {
+  if (0 <= addr && addr < state->memsize) {
     return *(uint32_t *)(state->mem + addr);
   } else {
     error("SIGSEGV was thrown.");
@@ -67,7 +67,7 @@ uint32_t read_mem_uint32(state_t *state, int addr){
 }
 
 float read_mem_float(state_t *state, int addr){
-  if (0 <= addr && addr < MEM_SIZE) {
+  if (0 <= addr && addr < state->memsize) {
     return *(float *)(state->mem + addr);
   } else {
     error("SIGSEGV was thrown.");
@@ -78,7 +78,7 @@ float read_mem_float(state_t *state, int addr){
 
 
 void write_mem(state_t *state, int addr, char value){
-  if (0 <= addr && addr < MEM_SIZE) {
+  if (0 <= addr && addr < state->memsize) {
     state->mem[addr] = value;
   } else {
     error("SIGSEGV was thrown.");
@@ -99,6 +99,7 @@ void init_state(state_t *state, int argc, char* argv[]){
   // last return address 
   state->reg[1] = INITIAL_X1;
 
+  state->memsize = MEM_SIZE;
   state->mem = malloc(MEM_SIZE * sizeof(uint8_t));
   for(int i=0; i<MEM_SIZE; i++)
     state->mem[i] = 0;
@@ -153,9 +154,10 @@ void init_state(state_t *state, int argc, char* argv[]){
         exit(1);
       }
       free(state->mem);
-      state->mem = malloc(sizeof(uint8_t) * atoi(argv[++i]));
+      state->memsize = atoi(argv[++i]);
+      state->mem = malloc(sizeof(uint8_t) * state->memsize);
       if(state->mem == NULL){
-        error("Cannot allocate memory. (size=%d)", atoi(argv[i]));
+        error("Cannot allocate memory. (size=%d)", state->memsize);
         exit(1);
       }
     } else if (strcmp(argv[i], "--debug")==0){

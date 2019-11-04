@@ -38,7 +38,8 @@ typedef struct {
   int reg_min[32];
   int reg_max[32];
   freg_float freg[32];
-  
+
+  int memsize;
   uint8_t *mem;
   
   // breakpoints
