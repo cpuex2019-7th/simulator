@@ -72,7 +72,6 @@ float read_mem_float(state_t *state, int addr){
   }
 }
 
-
 void write_mem(state_t *state, int addr, char value){
   if (0 <= addr && addr < state->memsize) {
     state->mem[addr] = value;
@@ -109,6 +108,7 @@ void init_state(state_t *state, int argc, char* argv[]){
 
   state->ifp = NULL;
   state->ofp = NULL;
+  set_execution_mode(CONTINUOUS);
   
   // process the arguments
   for (int i=1; i < argc; i++){
@@ -168,29 +168,12 @@ void init_state(state_t *state, int argc, char* argv[]){
       // set logging level to debug
       ///////////////
       set_logging_level(DEBUG);
+      set_execution_mode(STEP);
     } else if (strcmp(argv[i], "--info")==0){
       // set logging level to info
       ///////////////
       set_logging_level(INFO);
-    } else if (strcmp(argv[i], "--strict")==0){
-      // set execution mode to strict
-      ///////////////
-      set_execution_mode(1); // set the execution strict
-    } else if (strcmp(argv[i], "--breakpoint") == 0
-               || strcmp(argv[i], "-b") == 0){
-      // set breakpoint
-      ///////////////
-      if (i == argc-1){
-        error("No address for a new breakpoint is specified.");
-        exit(1);
-      }
-      unsigned baddr;
-      sscanf(argv[++i], "%x", &baddr);
-      blist_t *new_elm = malloc(sizeof(blist_t));
-      new_elm->next = state->blist;
-      new_elm->addr = baddr;
-      state->blist = new_elm;
-    } else if (strcmp(argv[i], "--symbols") == 0){
+    }  else if (strcmp(argv[i], "--symbols") == 0){
       // loading symbol information
       ///////////////
       if (i == argc-1){

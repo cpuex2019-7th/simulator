@@ -4,6 +4,21 @@
 #include "state.h"
 #include "instr.h"
 #include "disasmutil.h"
+#include "exec.h"
+#include "breakpoint.h"
+
+
+void get_pretty_location(slist_t *slist, uint32_t addr, char *buf){
+  char *label = NULL;
+  uint32_t offset = 0;
+  get_label_and_offset(slist, addr, &label, &offset);
+      
+  if (label == NULL){
+    label = "<filebase>";
+    offset = addr;
+  }
+  sprintf(buf, "%20s+0x%08x", label, offset);  
+}
 
 void print_current_instr(state_t *state){
   char *buf[4];
@@ -17,16 +32,9 @@ void print_current_instr(state_t *state){
   disasm(instr, state->pc, detail, 100);
 
   // resolve label information with .symbols file
-  // resolve label information with .symbols file
-  char *label = NULL;
-  uint32_t offset = 0;
-  get_label_and_offset(state->slist, state->pc, &label, &offset);
-    
-  if (label == NULL){
-    label = "<filebase>";
-    offset = state->pc;
-  }
-  printf("0x%08x(%20s+0x%08x):\t0x%08x\t%s\n", state->pc, label, offset, iraw, detail);
+  char location[100];
+  get_pretty_location(state->slist, state->pc, location);
+  printf("0x%08x(%s):\t0x%08x\t%s\n", state->pc, location, iraw, detail);
 
   free(instr);
 }
@@ -60,13 +68,7 @@ void show_state(state_t* state, FILE *fp){
 
 static char *previous_cmd = NULL;
 
-// returns ...
-// 0 when step execution finishes
-// 1 when step execution continues
-int run_debugger(state_t* state){
-  if(get_logging_level() > DEBUG)
-    return 0;
-
+execution_mode_t run_debugger(state_t* state){
   // show current status
   printf("Stopped at %u\n", state->pc);
   printf("------------------\n");  
@@ -99,11 +101,50 @@ int run_debugger(state_t* state){
 
     // exec
     if(strcmp(cmd, "stepi") == 0){
-      return 1;
+      return STEP;
     } else if(strcmp(cmd, "help") == 0){
       printf("stepi, help, examine, stack, next, quit\n");
     } else if(strncmp(cmd, "examine ", 8) == 0){
       // TODO
+    } else if(strncmp(cmd, "b ", 2) == 0){
+      char label[80];
+      uint32_t addr;
+      int addr_base;
+      uint32_t offset = 0;
+      
+      if(1 == sscanf(cmd, "b 0x%x", &addr)){
+      } else if (2 == sscanf(cmd, "b %s 0x%x", label, &offset)
+                 || 2 == sscanf(cmd, "b %s %d", label, &offset)
+                 || 1 == sscanf(cmd, "b %s", label)){
+        addr_base = get_addr_from_label(state->slist, label);
+        if (addr_base == -1){
+          error("No such label: %s", label);
+          continue;
+        } else {
+          addr = addr_base + offset;
+        }
+      } else {
+        error("Undefined command format: %s", cmd);
+        continue;
+      }
+
+      insert_new_breakpoint(&(state->blist), addr);
+      debug("Set breakpoint: 0x%08x", addr);
+    } else if(strcmp(cmd, "i b") == 0){
+      blist_t *seek = state->blist;
+      int i=0;
+      while(seek != NULL){
+        char location[100];
+        get_pretty_location(state->slist, seek->addr, location);
+        debug("- %d: 0x%08x (%s)", i, seek->addr, location);
+        seek = seek->next;
+        i++;
+      }      
+    } else if(strncmp(cmd, "d ", 2) == 0){
+      int i=0;
+      sscanf(cmd, "d %d", &i);      
+      delete_breakpoint_by_id(&(state->blist), i);
+     
     } else if(strcmp(cmd, "stack") == 0){
       unsigned sp = state->reg[2];
       unsigned fp = state->reg[8];
@@ -121,15 +162,17 @@ int run_debugger(state_t* state){
       }
     } else if(strcmp(cmd, "next") == 0){
       break;
+    } else if(strcmp(cmd, "continue") == 0){
+      break;
     } else if(strcmp(cmd, "quit") == 0){
       printf("Really? (y/n) > ");
       scanf("%40s", cmd);
       if(strcmp(cmd, "y") == 0)
-        exit(1);
+        exit_with_dinfo(state, 1);
     } else {
       error("No such command: %s. (`help` will help you!)", cmd);
     }
   }
 
-  return 0;
+  return CONTINUOUS;
 }
