@@ -9,9 +9,13 @@
 #include "logging.h"
 #include "exec.h"
 #include "debugger.h"
+#include "stat.h"
+#include "signal.h"
 
 int main(int argc, char* argv[]){
   state_t state;
+  set_stat_on_signal();
+    
   set_logging_level(ERROR);
   fesetround(FE_TONEAREST);
   init_state(&state, argc, argv);
@@ -25,32 +29,8 @@ int main(int argc, char* argv[]){
   
   // output statistics
   if (state.sfp != NULL || get_logging_level() <= DEBUG){
-    FILE *output = state.sfp != NULL? state.sfp : stdout;
-    
-    time_t t = time(NULL);
-    fprintf(output, "---------------------\n");
-    fprintf(output, "[*] Executed at: %s", ctime(&t));
-    fprintf(output, "[*] Executable filename: %s\n", state.filename);
-    fprintf(output, "[*] #(instructions): %lu\n", state.length/4);
-    fprintf(output, "[*] #(total execution steps): %llu\n", state.step_num);
-    fprintf(output, "[*] Range of values of registers (as signed int)\n");
-    for(int i=0; i < 16; i++){
-      fprintf(output, "\tx%02d: [%12d, %12d]\t/\tx%02d: [%12d, %12d]\n",
-              i, state.reg_min[i], state.reg_max[i],
-              i+16, state.reg_min[i+16], state.reg_max[i+16]);
-    }    
-    show_state(&state, output);
-    
-    if (state.slist != NULL){
-      fprintf(output, "[*] #(function calls): \n");
-      slist_t *seek = state.slist;
-      while (seek != NULL){
-        fprintf(output, "\t%s\tat 0x%08x: %u \n", seek->label, seek->addr, seek->called_num);
-        seek = seek->next;
-      }
-    }
-    
-    fprintf(output, "---------------------\n");
+    FILE *output = state.sfp != NULL? state.sfp : stderr;
+    show_stat(output, &state);
   }
 
   // finalize
