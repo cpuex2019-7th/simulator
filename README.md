@@ -15,7 +15,7 @@ If you'd like to execute step by step, the following command will help you:
 
 ```sh
 make install
-cpuex_sim <filename of RISC-V executable> --breakpoint 0 --debug
+cpuex_sim <filename of RISC-V executable> --debug
 ```
 
 If you want to disassemble the binary, you can do it with following commands.
@@ -44,9 +44,6 @@ make
 
 - `-i`: the file given to UART input
 - `-o`: the file written by UART output
-- `--breakpoint <addr in hex (e.g. FF)>` (or `-b <addr>`)
-  - You can set multiple breakpoints.
-  - e.g. `--breakpoint F0`
 - `--debug`, `--info`
   - You can set debugging level.
 - `--strict`
@@ -55,3 +52,9 @@ make
   - if this directive is set, this simulator use it as a hint of function definition(s).
 - `--statout <filename>`
   - if this directive is set, this simulator outputs statistics of the simulation at the end of execution.
+
+## Debugger
+
+- `i b`: list of debugger
+- `d num`: remove a specified breakpoint
+- `b label <offset>`: add breakpoint

@@ -16,6 +16,17 @@ void update_slist(slist_t *slist, uint32_t addr){
   }
 }
 
+int get_addr_from_label(slist_t *slist, char* label){
+  slist_t *seek = slist;
+  while(seek != NULL){
+    if(strcmp(seek->label, label) == 0){
+      return seek->addr;
+    } 
+    seek = seek->next;
+  }
+  return -1;
+}
+
 void get_label_and_offset(slist_t *slist, uint32_t addr, char **label, uint32_t *offset){
   *label = NULL;
   *offset = 0;
@@ -43,14 +54,21 @@ void insert_new_symbol(slist_t **slist, char *label, uint32_t addr){
   new_elm->called_num = 0;
   new_elm->next = NULL;
 
+  slist_t **prev = NULL;
   slist_t **seek = slist;
   while (*seek != NULL){
     if(addr < (*seek)->addr){
       break;
     } else {
+      prev = seek;
       seek = &((*seek)->next);
     }
   }
+  
   new_elm->next = *seek;
-  (*seek) = new_elm;
+  if(prev == NULL){
+    *seek = new_elm;
+  } else {   
+    (*prev)->next = new_elm;
+  }
 }

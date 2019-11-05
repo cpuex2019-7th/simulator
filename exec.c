@@ -1,13 +1,14 @@
 #include <stdio.h>
 #include <math.h>
 
+#include "exec.h"
 #include "state.h"
 #include "instr.h"
 #include "debugger.h"
 #include "logging.h"
+#include "breakpoint.h"
 
-static int is_step_execution_enabled = 0;
-static int is_strict = 0;
+static execution_mode_t execution_mode = CONTINUOUS;
 
 int srl(int x, int n) {
   return (unsigned)x >> n;
@@ -16,33 +17,21 @@ int sra(int x, int n) {
   return x < 0 && n > 0? x >> n | ~(~0U >> n): x >> n;
 }
 
-void exit_if_strict_mode(state_t *state, int code){
-  if (is_strict){
-    printf("Exit State:\n");
-    show_state(state, stdout);    
-    exit(code);
-  }
+void exit_with_dinfo(state_t *state, int code){
+  printf("Exit State:\n");
+  show_state(state, stdout);    
+  exit(code);
 }
 
-void set_execution_mode(int _mode){
-  is_strict = _mode;
-}
-
-int is_here_breakpoint(state_t *state){
-  blist_t *head = state->blist;
-  while(head != NULL){
-    if(head->addr == state->pc)
-      return 1;
-    head = head->next;
-  }
-  return 0;
+void set_execution_mode(execution_mode_t _mode){
+  execution_mode = _mode;
 }
 
 int exec_hook_pre(state_t *state){  
   info("Executing next instruction ... (PC=%08x)", state->pc);
-  if(is_step_execution_enabled == 1
-     || is_here_breakpoint(state) == 1){
-    is_step_execution_enabled = run_debugger(state);
+  if(execution_mode == STEP
+     || is_here_breakpoint(state->blist, state->pc) == 1){
+    execution_mode = run_debugger(state);
   }
   return 0;
 }
@@ -132,7 +121,7 @@ void exec_stepi(state_t *state){
                 SIGNEXT(read_mem_uint8(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 7));
     } else {
       error("[*] UART read with LB is prohibited.");
-      exit_if_strict_mode(state, 1);
+      exit_with_dinfo(state, 1);
     }
     break;
   case LH:
@@ -143,7 +132,7 @@ void exec_stepi(state_t *state){
                 SIGNEXT(read_mem_uint16(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 15));
     } else {
       error("[*] UART read with FH is prohibited.");
-      exit_if_strict_mode(state, 1);
+      exit_with_dinfo(state, 1);
     }
     break;
   case LW:
@@ -154,7 +143,7 @@ void exec_stepi(state_t *state){
                 read_mem_uint32(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
     } else {
       error("[*] UART read with LW is prohibited.");
-      exit_if_strict_mode(state, 1);
+      exit_with_dinfo(state, 1);
     }
     break;
   case LBU:
@@ -170,7 +159,7 @@ void exec_stepi(state_t *state){
       case 0:
         if (state->ifp == NULL){
           error("No input file was specified.");
-          exit(1);
+          exit_with_dinfo(state, 1);
         }
         write_reg(state,
                   ((instr_i_t *) instr)->rd,
@@ -183,7 +172,7 @@ void exec_stepi(state_t *state){
         break;
       default:
         error("Invalid UART address");
-        exit(1);
+        exit_with_dinfo(state, 1);
       }
     }
     break;
@@ -196,7 +185,7 @@ void exec_stepi(state_t *state){
       // no sign extention
     } else {
       error("[*] UART read with LHU is prohibited.");
-      exit_if_strict_mode(state, 1);
+      exit_with_dinfo(state, 1);
     }
     break;
   case SB:
@@ -211,7 +200,7 @@ void exec_stepi(state_t *state){
       case 4:
         if (state->ofp == NULL){
           error("No output file was specified.");
-          exit(1);
+          exit_with_dinfo(state, 1);
         }
         fprintf(state->ofp, "%1c", state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
         fflush(state->ofp);
@@ -221,7 +210,7 @@ void exec_stepi(state_t *state){
         break;
       default:
         error("Invalid UART address");
-        exit(1);       
+        exit_with_dinfo(state, 1);       
       }
     }
     break;
@@ -234,7 +223,7 @@ void exec_stepi(state_t *state){
       write_mem(state, s_addr+1, srl((state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)), 8));
     } else {
       error("[*] UART write with SH is prohibited.");
-      exit_if_strict_mode(state, 1);
+      exit_with_dinfo(state, 1);
     }
     break;
   case SW:
@@ -252,7 +241,7 @@ void exec_stepi(state_t *state){
       write_mem(state, s_addr+3, srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24),  24));
     } else {
       error("[*] UART write with SW is prohibited.");
-      exit_if_strict_mode(state, 1);
+      exit_with_dinfo(state, 1);
     }
     break;    
   case ADDI:
@@ -418,7 +407,7 @@ void exec_stepi(state_t *state){
                  read_mem_float(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
     } else {
       error("[*] UART read with FLW is prohibited.");
-      exit_if_strict_mode(state, 1);
+      exit_with_dinfo(state, 1);
     }
     break;
   case FSW:
@@ -436,7 +425,7 @@ void exec_stepi(state_t *state){
       write_mem(state, s_addr+3, srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)), 24));
     } else {
       error("[*] UART write with FSW is prohibited.");
-      exit(1);
+      exit_with_dinfo(state, 1);
     }
     break;    
   case FMVWX:
@@ -451,8 +440,8 @@ void exec_stepi(state_t *state){
     break;
   case FADDS:
     write_freg(state,
-              ((instr_r_t *) instr)->rd,
-              state->freg[((instr_r_t *) instr)->rs1].f + state->freg[((instr_r_t *) instr)->rs2].f);
+               ((instr_r_t *) instr)->rd,
+               state->freg[((instr_r_t *) instr)->rs1].f + state->freg[((instr_r_t *) instr)->rs2].f);
     break;
   case FSUBS:
     write_freg(state,
@@ -515,7 +504,7 @@ void exec_stepi(state_t *state){
     /////////
   default:    
     error("unimplemented instruction: %d", instr->op);
-    exit_if_strict_mode(state, 1);
+    exit_with_dinfo(state, 1);
     break;
   }
 

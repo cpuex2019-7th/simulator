@@ -4,6 +4,7 @@
 #include <stdlib.h>
 
 #include "symbols.h"
+#include "breakpoint.h"
 
 #define INITIAL_X1 0xff000000
 #define MEM_SIZE 0x2000000
@@ -12,11 +13,6 @@ typedef union {
   float f;
   int i;
 } freg_float;
-
-typedef struct _breakpoint_list {
-  uint32_t addr;  
-  struct _breakpoint_list *next;
-} blist_t;
 
 typedef struct { 
   // program
