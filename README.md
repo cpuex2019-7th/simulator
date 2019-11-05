@@ -52,3 +52,9 @@ make
   - if this directive is set, this simulator use it as a hint of function definition(s).
 - `--statout <filename>`
   - if this directive is set, this simulator outputs statistics of the simulation at the end of execution.
+
+## Debugger
+
+- `i b`: list of debugger
+- `d num`: remove a specified breakpoint
+- `b label <offset>`: add breakpoint
