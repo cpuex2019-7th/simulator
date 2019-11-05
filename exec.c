@@ -7,6 +7,8 @@
 #include "debugger.h"
 #include "logging.h"
 #include "breakpoint.h"
+#include "stat.h"
+#include "signal.h"
 
 static execution_mode_t execution_mode = CONTINUOUS;
 
@@ -32,6 +34,9 @@ int exec_hook_pre(state_t *state){
   if(execution_mode == STEP
      || is_here_breakpoint(state->blist, state->pc) == 1){
     execution_mode = run_debugger(state);
+  } else if (is_show_stat_required){
+    show_stat(stderr, state);
+    is_show_stat_required = 0;
   }
   return 0;
 }
