@@ -90,7 +90,7 @@ execution_mode_t run_debugger(state_t* state){
       if (previous_cmd != NULL){
         cmd = previous_cmd;
       } else {
-        cmd = "help";
+        cmd = "continue";
       }
     } else {
       if (previous_cmd != NULL){        
