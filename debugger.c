@@ -129,14 +129,14 @@ execution_mode_t run_debugger(state_t* state){
       }
 
       insert_new_breakpoint(&(state->blist), addr);
-      debug("Set breakpoint: 0x%08x", addr);
+      printf("Set breakpoint: 0x%08x\n", addr);
     } else if(strcmp(cmd, "i b") == 0){
       blist_t *seek = state->blist;
       int i=0;
       while(seek != NULL){
         char location[100];
         get_pretty_location(state->slist, seek->addr, location);
-        debug("- %d: 0x%08x (%s)", i, seek->addr, location);
+        printf("- %d: 0x%08x (%s)\n", i, seek->addr, location);
         seek = seek->next;
         i++;
       }      

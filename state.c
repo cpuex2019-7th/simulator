@@ -168,6 +168,9 @@ void init_state(state_t *state, int argc, char* argv[]){
       // set logging level to debug
       ///////////////
       set_logging_level(DEBUG);
+    }  else if (strcmp(argv[i], "--debugger")==0){
+      // launch debugger at startup
+      ///////////////
       set_execution_mode(STEP);
     } else if (strcmp(argv[i], "--info")==0){
       // set logging level to info
