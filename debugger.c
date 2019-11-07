@@ -21,10 +21,7 @@ void get_pretty_location(slist_t *slist, uint32_t addr, char *buf){
 }
 
 void print_current_instr(state_t *state){
-  char *buf[4];
-  fseek(state->pfp, (int) state->pc, SEEK_SET);
-  fread(buf, 4, 4, state->pfp);
-  int iraw = *(int*)buf;  
+  int iraw = state->prog[state->pc/4];  
   instr_t *instr = fetch_and_decode_once(state);
 
   // disassemble

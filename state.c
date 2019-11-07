@@ -84,7 +84,6 @@ void write_mem(state_t *state, int addr, char value){
 // controller of the state of simulator
 //////////////
 void init_state(state_t *state, int argc, char* argv[]){
-  state->pfp = NULL;
   state->pc = 0;
   state->is_running = 1;
   
@@ -196,29 +195,35 @@ void init_state(state_t *state, int argc, char* argv[]){
       }      
     } else {
       // argument should be .bin filepath
-      ///////////////
-      if(state->pfp != NULL){
+      ///////////////      
+      if(state->prog != NULL){
         error("Two or more executables were specified.");
         exit(1);
       }
       state->filename = malloc(strlen(argv[i])+1);
       strcpy(state->filename, argv[i]);
+
       
-      state->pfp = fopen(argv[i], "rb");
-      if(state->pfp == NULL){
+      FILE *pfp = fopen(argv[i], "rb");
+      if(pfp == NULL){
         error("Failed to open specified executable.");
         exit(1);
       }
+      
+      // load program & set program length
+      fseek(pfp, 0L, SEEK_END);
+      state->length = ftell(pfp);
+      fseek(pfp, 0, SEEK_SET);
+  
+      state->prog = malloc(state->length * sizeof(int));
+      for(int i=0; i < (int)(state->length/4); i++)
+        fread(&(state->prog[i]), 4, 1, pfp);
     }
   }
 
   // validate
-  if (state->pfp == NULL){
+  if (state->prog == NULL){
     error("No executable was specified.");
     exit(1);
   }
-
-  // set program length
-  fseek(state->pfp, 0L, SEEK_END);
-  state->length = ftell(state->pfp);
 }

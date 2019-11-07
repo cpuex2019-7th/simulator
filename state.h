@@ -17,7 +17,8 @@ typedef union {
 typedef struct { 
   // program
   char *filename;
-  FILE *pfp;
+  int *prog;
+  
   uint32_t pc;
   int is_running;
   size_t length;

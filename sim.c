@@ -34,8 +34,6 @@ int main(int argc, char* argv[]){
   }
 
   // finalize
-  if(state.pfp != NULL)
-    fclose(state.pfp);
   if(state.ifp != NULL)
     fclose(state.ifp);
   if(state.ofp != NULL)

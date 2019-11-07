@@ -7,7 +7,6 @@
 
 int main(int argc, char* argv[]){
   state_t state;
-  state.pfp = NULL;
   int verbose_level = 0;
 
   // load state
@@ -35,28 +34,31 @@ int main(int argc, char* argv[]){
         insert_new_symbol(&(state.slist), symbol_buf, addr_buf);
       }      
     } else {      
-      state.pfp = fopen(argv[i], "rb");
-      if(state.pfp == NULL){
+      FILE *pfp = fopen(argv[i], "rb");
+      if(pfp == NULL){
         printf("Failed to open specified executable.");
         exit(1);
       }
-      fseek(state.pfp, 0L, SEEK_END);
-      state.length = ftell(state.pfp);
+      // load program & set program length
+      fseek(pfp, 0L, SEEK_END);
+      state.length = ftell(pfp);
+      fseek(pfp, 0, SEEK_SET);
+  
+      state.prog = malloc(state.length * sizeof(int));
+      for(int i=0; i < (int)(state.length/4); i++)
+        fread(&(state.prog[i]), 4, 1, pfp);
     }
   }
 
   // validate
-  if (state.pfp == NULL){
+  if (state.prog == NULL){
     printf("%s <file to disasm>", argv[0]);
     exit(1);
   }
 
   // main loop
   for(state.pc=0; state.pc<state.length; state.pc+=4){    
-    char *buf[4];
-    fseek(state.pfp, (int) state.pc, SEEK_SET);
-    fread(buf, 4, 4, state.pfp);
-    int iraw = *(int*)buf;
+    int iraw = state.prog[state.pc/4];  
     instr_t *instr = fetch_and_decode_once(&state);
     
     char detail[100];

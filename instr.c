@@ -59,14 +59,9 @@ void unimplemented(int iraw, int loc){
 // use fp for future
 // (it may allow us to decode the instructions included by rv32c easily?)
 instr_t *fetch_and_decode_once(state_t *state){
-  instr_t *instr = malloc(sizeof(instr_t));
+  instr_t *instr = malloc(sizeof(instr_t));  
+  int iraw = state->prog[state->pc/4];
   
-  // here we assume pc may not exceed INT_MAX! lol
-  char *buf[4];
-  fseek(state->pfp, (int) state->pc, SEEK_SET);
-  fread(buf, 4, 4, state->pfp);
-  
-  int iraw = *(int*)buf;
   switch (iraw & 0b1111111){
     // rv32i
   case 0b0110111: // LUI    
