@@ -8,7 +8,7 @@
 // uart utils
 //////////////
 int get_uart_status(state_t *state){
-  char c =  state->ifp == NULL? EOF : fgetc(state->ifp);
+  int c =  state->ifp == NULL? EOF : fgetc(state->ifp);
   if (c != EOF)
     fseek(state->ifp, -1, SEEK_CUR);
   return c == EOF? 0 : 1;
