@@ -25,18 +25,17 @@ void print_current_instr(state_t *state){
   fseek(state->pfp, (int) state->pc, SEEK_SET);
   fread(buf, 4, 4, state->pfp);
   int iraw = *(int*)buf;  
-  instr_t *instr = fetch_and_decode_once(state);
+  instr_t instr;
+  fetch_and_decode_once(state, &instr);
 
   // disassemble
   char detail[100];
-  disasm(instr, state->pc, detail, 100);
+  disasm(&instr, state->pc, detail, 100);
 
   // resolve label information with .symbols file
   char location[100];
   get_pretty_location(state->slist, state->pc, location);
   printf("0x%08x(%s):\t0x%08x\t%s\n", state->pc, location, iraw, detail);
-
-  free(instr);
 }
 
 void show_state(state_t* state, FILE *fp){

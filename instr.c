@@ -58,9 +58,7 @@ void unimplemented(int iraw, int loc){
 
 // use fp for future
 // (it may allow us to decode the instructions included by rv32c easily?)
-instr_t *fetch_and_decode_once(state_t *state){
-  instr_t *instr = malloc(sizeof(instr_t));
-  
+void fetch_and_decode_once(state_t *state, instr_t *instr){  
   // here we assume pc may not exceed INT_MAX! lol
   char *buf[4];
   fseek(state->pfp, (int) state->pc, SEEK_SET);
@@ -414,5 +412,4 @@ instr_t *fetch_and_decode_once(state_t *state){
     unimplemented(iraw, 15);
     break;
   }
-  return instr;
 }

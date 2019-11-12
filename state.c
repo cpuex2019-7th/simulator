@@ -108,6 +108,7 @@ void init_state(state_t *state, int argc, char* argv[]){
 
   state->ifp = NULL;
   state->ofp = NULL;
+  state->sfp = NULL;
   set_execution_mode(CONTINUOUS);
   
   // process the arguments

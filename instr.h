@@ -135,7 +135,7 @@ typedef struct {
   instr_kind_t op;
 } instr_t;
 
-instr_t *fetch_and_decode_once(state_t*);
+void fetch_and_decode_once(state_t*, instr_t *);
 
 // TODO: enhancement ... set ISA configurable (e.g. limitation on the ISA)
 

@@ -57,10 +57,11 @@ int main(int argc, char* argv[]){
     fseek(state.pfp, (int) state.pc, SEEK_SET);
     fread(buf, 4, 4, state.pfp);
     int iraw = *(int*)buf;
-    instr_t *instr = fetch_and_decode_once(&state);
+    instr_t instr;
+    fetch_and_decode_once(&state, &instr);
     
     char detail[100];
-    disasm(instr, state.pc, detail, 100);
+    disasm(&instr, state.pc, detail, 100);
 
     
     // resolve label information with .symbols file
@@ -84,7 +85,6 @@ int main(int argc, char* argv[]){
       printf("%s\n", detail);
 
     }
-    free(instr);
   }
   return 0;
 }
