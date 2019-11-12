@@ -59,10 +59,11 @@ int main(int argc, char* argv[]){
   // main loop
   for(state.pc=0; state.pc<state.length; state.pc+=4){    
     int iraw = state.prog[state.pc/4];  
-    instr_t *instr = fetch_and_decode_once(&state);
+    instr_t instr;
+    fetch_and_decode_once(&state, &instr);
     
     char detail[100];
-    disasm(instr, state.pc, detail, 100);
+    disasm(&instr, state.pc, detail, 100);
 
     
     // resolve label information with .symbols file
@@ -86,7 +87,6 @@ int main(int argc, char* argv[]){
       printf("%s\n", detail);
 
     }
-    free(instr);
   }
   return 0;
 }

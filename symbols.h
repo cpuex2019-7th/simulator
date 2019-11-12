@@ -1,5 +1,5 @@
 #pragma once
-#include <stdlib.h>
+#include <stdint.h>
 
 typedef struct _symbol_list {
   char *label;

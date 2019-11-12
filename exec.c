@@ -52,8 +52,9 @@ void exec_hook_post(state_t *state){
 
 void exec_stepi(state_t *state){
   // fetch & decode
-  instr_t *instr = fetch_and_decode_once(state);
-
+  instr_t _instr;
+  fetch_and_decode_once(state, &_instr);
+  instr_t *instr = &_instr;
 
   // jump destination
   uint32_t jump_dest = 0;
@@ -120,7 +121,7 @@ void exec_stepi(state_t *state){
     // TODO: refactor here with nested switch
   case LB:    
     if((srl(i_addr, 24)) != 0x7F){
-      debug("Mem read (Byte): from %08x\n", i_addr);
+      ////debug("Mem read (Byte): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
                 SIGNEXT(read_mem_uint8(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 7));
@@ -131,7 +132,7 @@ void exec_stepi(state_t *state){
     break;
   case LH:
     if((srl(i_addr, 24)) != 0x7F){
-      debug("Mem read (Half Word): from %08x\n", i_addr);
+      ////debug("Mem read (Half Word): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
                 SIGNEXT(read_mem_uint16(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm), 15));
@@ -142,7 +143,7 @@ void exec_stepi(state_t *state){
     break;
   case LW:
     if((srl(i_addr, 24)) != 0x7F){
-      debug("Mem read (Word): from %08x\n", i_addr);
+      ////debug("Mem read (Word): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
                 read_mem_uint32(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
@@ -153,13 +154,13 @@ void exec_stepi(state_t *state){
     break;
   case LBU:
     if((srl(i_addr, 24)) != 0x7F){
-      debug("Mem read (Byte Unsigned): from %08x\n", i_addr);
+      //debug("Mem read (Byte Unsigned): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
                 (uint32_t) read_mem_uint8(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
       // no sign extention
     } else {
-      debug("[*] UART read: %08x\n", i_addr & 0b11111111);
+      //debug("[*] UART read: %08x\n", i_addr & 0b11111111);
       switch(i_addr & 0b11111111){
       case 0:
         if (state->ifp == NULL){
@@ -183,7 +184,7 @@ void exec_stepi(state_t *state){
     break;
   case LHU:
     if((srl(i_addr, 24)) != 0x7F){
-      debug("Mem read (Half Word Unsigned): from %08x\n", i_addr);
+      //debug("Mem read (Half Word Unsigned): from %08x\n", i_addr);
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
                 (uint32_t) read_mem_uint16(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
@@ -195,12 +196,14 @@ void exec_stepi(state_t *state){
     break;
   case SB:
     if((srl(s_addr, 24)) != 0x7F){
+      /*
       debug("[*] Mem write (Byte): %02x to %08x\n",
             state->reg[((instr_s_t *) instr)->rs2] & 0xFF,
             s_addr);    
+      */
       write_mem(state, s_addr, state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
     } else {
-      debug("[*] UART write (Byte): %08x\n", s_addr);
+      //debug("[*] UART write (Byte): %08x\n", s_addr);
       switch(s_addr & 0b11111111){
       case 4:
         if (state->ofp == NULL){
@@ -221,9 +224,11 @@ void exec_stepi(state_t *state){
     break;
   case SH:
     if((srl(s_addr, 24)) != 0x7F){
+      /*
       debug("[*] Mem write (Half word): %04x to %08x\n",
             state->reg[((instr_s_t *) instr)->rs2] & 0x00FF,
             s_addr);
+      */
       write_mem(state, s_addr, state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
       write_mem(state, s_addr+1, srl((state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)), 8));
     } else {
@@ -233,6 +238,7 @@ void exec_stepi(state_t *state){
     break;
   case SW:
     if((srl(s_addr, 24)) != 0x7F){
+      /*
       debug("[*] Mem write (Word): %08x to %08x (little endian: %02x %02x %02x %02x)\n",
             state->reg[((instr_s_t *) instr)->rs2],
             s_addr,
@@ -240,6 +246,7 @@ void exec_stepi(state_t *state){
             srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8), 8),
             srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16), 16),
             srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24), 24));
+      */
       write_mem(state, s_addr, state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
       write_mem(state, s_addr+1, srl((state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)), 8));
       write_mem(state, s_addr+2, srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16), 16));
@@ -406,7 +413,7 @@ void exec_stepi(state_t *state){
 
   case FLW:
     if((srl(i_addr, 24)) != 0x7F){
-      debug("Mem read (Float Word): from %08x\n", i_addr);      
+      //debug("Mem read (Float Word): from %08x\n", i_addr);      
       write_freg(state,
                  ((instr_i_t *) instr)->rd,
                  read_mem_float(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
@@ -417,6 +424,7 @@ void exec_stepi(state_t *state){
     break;
   case FSW:
     if((srl(s_addr, 24)) != 0x7F){
+      /*
       debug("[*] Mem write (Float Word): %08x to %08x (little endian: %02x %02x %02x %02x)\n",
             state->freg[((instr_s_t *) instr)->rs2],
             s_addr,
@@ -424,6 +432,7 @@ void exec_stepi(state_t *state){
             srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)), 8),
             srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)), 16),
             srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)), 24));
+      */
       write_mem(state, s_addr, state->freg[((instr_s_t *) instr)->rs2].i & 0b11111111);
       write_mem(state, s_addr+1, srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)), 8));
       write_mem(state, s_addr+2, srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)), 16));
@@ -517,8 +526,5 @@ void exec_stepi(state_t *state){
   state->pc = jump_enabled?  jump_dest : state->pc + 4;
   
   if (jump_enabled && state->slist != NULL)
-    update_slist(state->slist, jump_dest);
-  
-  // finalize
-  free(instr);
+    update_slist(state->slist, jump_dest);  
 }

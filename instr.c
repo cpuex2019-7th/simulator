@@ -58,8 +58,7 @@ void unimplemented(int iraw, int loc){
 
 // use fp for future
 // (it may allow us to decode the instructions included by rv32c easily?)
-instr_t *fetch_and_decode_once(state_t *state){
-  instr_t *instr = malloc(sizeof(instr_t));  
+void fetch_and_decode_once(state_t *state, instr_t *instr){  
   int iraw = state->prog[state->pc/4];
   
   switch (iraw & 0b1111111){
@@ -409,5 +408,4 @@ instr_t *fetch_and_decode_once(state_t *state){
     unimplemented(iraw, 15);
     break;
   }
-  return instr;
 }

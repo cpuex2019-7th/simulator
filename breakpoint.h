@@ -1,5 +1,5 @@
 #pragma once
-#include <stdlib.h>
+#include <stdint.h>
 
 typedef struct _breakpoint_list {
   uint32_t addr;  

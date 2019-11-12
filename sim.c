@@ -30,7 +30,7 @@ int main(int argc, char* argv[]){
   // output statistics
   if (state.sfp != NULL || get_logging_level() <= DEBUG){
     FILE *output = state.sfp != NULL? state.sfp : stderr;
-    show_stat(output, &state);
+   show_stat(output, &state);
   }
 
   // finalize
