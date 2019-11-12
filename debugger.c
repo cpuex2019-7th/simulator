@@ -68,6 +68,7 @@ static char *previous_cmd = NULL;
 execution_mode_t run_debugger(state_t* state){
   // show current status
   printf("Stopped at %u\n", state->pc);
+  printf("#(total execution steps): %llu\n", state->step_num);
   printf("------------------\n");  
   show_state(state, stdout);
   printf("------------------\n");
