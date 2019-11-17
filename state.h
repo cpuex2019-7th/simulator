@@ -21,6 +21,7 @@ typedef struct {
   
   uint32_t pc;
   int is_running;
+  int is_first_output_done;
   size_t length;
   
   // basic structure

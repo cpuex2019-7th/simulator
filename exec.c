@@ -188,7 +188,7 @@ void exec_stepi(state_t *state){
       write_reg(state,
                 ((instr_i_t *) instr)->rd,
                 (uint32_t) read_mem_uint16(state, state->reg[((instr_i_t *) instr)->rs1] + ((instr_i_t *) instr)->imm));
-      // no sign extention
+      // no sign extention required
     } else {
       error("[*] UART read with LHU is prohibited.");
       exit_with_dinfo(state, 1);
@@ -210,8 +210,12 @@ void exec_stepi(state_t *state){
           error("No output file was specified.");
           exit_with_dinfo(state, 1);
         }
-        fprintf(state->ofp, "%1c", state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
-        fflush(state->ofp);
+        if(state->is_first_output_done == 0) {
+          state->is_first_output_done = 1;
+        } else {
+          fprintf(state->ofp, "%1c", state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
+          fflush(state->ofp);
+        }
         break;
       case 0xc:
         // TODO

@@ -102,7 +102,9 @@ void init_state(state_t *state, int argc, char* argv[]){
 
   state->blist = NULL;
   state->slist = NULL;
-
+  
+  state->prog = NULL;
+  state->is_first_output_done = 0;
   state->step_num = 0;
 
   state->ifp = NULL;
