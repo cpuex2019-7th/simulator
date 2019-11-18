@@ -92,6 +92,9 @@ void init_state(state_t *state, int argc, char* argv[]){
     state->freg[i].i = 0;
   }
 
+  for(int i=0; i < HIST_SIZE; i++)
+    state->history[i] = 0;
+
   // last return address 
   state->reg[1] = INITIAL_X1;
 

@@ -36,7 +36,6 @@ void set_b_instr(int from, instr_b_t *to){
   to->rs2 = srl(from, 20) & 0b11111;
   to->rs1 = srl(from, 15) & 0b11111;
   to->funct3 = srl(from, 12) & 0b111;
-
   to->imm = SIGNEXT(to->imm, 12);
 }
 

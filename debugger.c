@@ -157,6 +157,16 @@ execution_mode_t run_debugger(state_t* state){
                state->mem[sp+i+6],
                state->mem[sp+i+7]);
       }
+    } else if(strcmp(cmd, "history") == 0){
+      // TODO: fix this dirty hack
+      uint32_t pc = state->pc;
+      printf("-----latest-----\n");
+      for (int i=0; i < HIST_SIZE; i++){
+        state->pc = state->history[i];
+        print_current_instr(state);
+      }
+      printf("-----oldest-----\n");
+      state->pc = pc;
     } else if(strcmp(cmd, "next") == 0){
       break;
     } else if(strcmp(cmd, "continue") == 0){

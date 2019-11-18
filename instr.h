@@ -111,7 +111,7 @@ typedef struct {
 } instr_s_t;
 
 typedef struct {  
-  int16_t imm : 12;
+  int16_t imm : 13;
   uint8_t rs2 : 5;
   uint8_t rs1 : 5;
   uint8_t funct3 : 3;

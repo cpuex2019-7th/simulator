@@ -38,6 +38,12 @@ int exec_hook_pre(state_t *state){
     show_stat(stderr, state);
     is_show_stat_required = 0;
   }
+
+  for(int i=HIST_SIZE-1; 0 < i; i--){
+    state->history[i] = state->history[i-1];
+  }    
+  state->history[0] = state->pc;
+  
   return 0;
 }
 
