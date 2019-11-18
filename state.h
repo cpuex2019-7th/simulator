@@ -8,6 +8,7 @@
 
 #define INITIAL_X1 0xff000000
 #define MEM_SIZE 0x2000000
+#define HIST_SIZE 10
 
 typedef union {
   float f;
@@ -20,6 +21,8 @@ typedef struct {
   int *prog;
   
   uint32_t pc;
+  uint32_t history[HIST_SIZE];
+  
   int is_running;
   int is_first_output_done;
   size_t length;
