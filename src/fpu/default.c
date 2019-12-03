@@ -178,6 +178,11 @@ wire sub(wire a, wire b, int l){
     return init(a.len+l,a.val-b.val);
 }
 
+wire mul(wire a, wire b, int l){
+    check_len(a,b);
+    return init(a.len+l,a.val*b.val);
+}
+
 // int main(){
 //     wire a = init(7,5);
 //     wire b = init(7,4);

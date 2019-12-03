@@ -1,0 +1,1 @@
+long long int fmul(long long int i1,long long int i2);

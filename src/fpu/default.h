@@ -17,3 +17,4 @@ int bitor(wire w);
 int bitand(wire w);
 wire add(wire a, wire b, int l);
 wire sub(wire a, wire b, int l);
+wire mul(wire a, wire b, int l);
