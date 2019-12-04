@@ -107,8 +107,8 @@ long long int fadd(long long int i1,long long int i2){
             (bitand(e2) && bitand(e1) == 0) ? concat(concat(s2,init(8,255)),concat(nzm2,extract(m2,21,0))) :
             (bitand(e1) && bitand(e2) && nzm2.val) ? concat(concat(s2,init(8,255)),concat(init(1,1),extract(m2,21,0))) :
             (bitand(e1) && bitand(e2) && nzm1.val) ? concat(concat(s1,init(8,255)),concat(init(1,1),extract(m1,21,0))) :
-            (bitand(e1) && bitand(e2) && eq(s1,s2)) ? concat(concat(s1,init(8,255)),init(23,0)) :
-            (bitand(e1) && bitand(e2)) ? concat(concat(init(1,1),init(8,255)),concat(init(1,1),init(22,0))) : concat(concat(sy,ey),my);
+            (bitand(e1) && bitand(e2) && eq(s1,s2)) ? concat3(s1,init(8,255),init(23,0)) :
+            (bitand(e1) && bitand(e2)) ? concat3(init(1,1),init(9,511),init(22,0)) : concat3(sy,ey,my);
 
    return y.val;
    // print_wire(y," ");

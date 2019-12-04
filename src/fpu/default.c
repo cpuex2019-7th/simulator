@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include "default.h"
+#include <math.h>
 // typedef struct {
 //     long long int val;
 //     int len;
@@ -187,12 +188,38 @@ wire mul(wire a, wire b, int l){
     return init(a.len+l,a.val*b.val);
 }
 
+double bitstoreal(wire w){
+    int s = extract(w,31,31).val;
+    int e = extract(w,30,23).val;
+    int m = extract(w,22,0).val;
+    // printf("%d %d %d\n",s,e,m);
+    double mm = 0;
+    for(int i=-23;i<=-1;i++){
+        mm += (m%2)*pow(2,i);
+        m /= 2;
+    }
+    return pow(-1,s)*pow(2,e-127)*(1+mm);
+}
+
+double max(double a,double b){
+    if(a>b){
+        return a;
+    }else{
+        return b;
+    }
+}
+
+double max3(double a,double b,double c){
+    return max(max(a,b),c);
+}
+
 // int main(){
-//     wire a = init(7,5);
-//     wire b = init(7,4);
-//     wire c = concat(a,b);
-//     print_wire(c);
-//     wire d = extract(c,8,2);
-//     print_wire(d);
+//     // wire a = init(7,5);
+//     // wire b = init(7,4);
+//     // wire c = concat(a,b);
+//     // print_wire(c);
+//     // wire d = extract(c,8,2);
+//     // print_wire(d);
+//     printf("%le",bitstoreal(concat3(init(1,1),init(8,164),init(23,3670016))));
 //     return 0;
 // }

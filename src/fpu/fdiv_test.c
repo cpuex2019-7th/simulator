@@ -76,7 +76,7 @@ int main(){
                         //       m2 = init(23,rand() >> 9);
                         //    }
                      }
-                     long long int y = fdiv(concat(concat(init(1,s1),init(8,i)),m1).val,concat(concat(init(1,s2),init(8,j)),m2).val);
+                     long long int y = fdiv(concat3(init(1,s1),init(8,i),m1).val,concat3(init(1,s2),init(8,j),m2).val);
                      // print_wire(init(32,y),"\n");
                   }
                }

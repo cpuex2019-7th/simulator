@@ -1,10 +1,14 @@
 #include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
 #include "default.h"
-#include "fadd.h"
+#include "fsqrt.h"
 
 int main(){
+   // long long int i;
+   // scanf("%lld",&i);
+   // long long int y = fsqrt(i);
+   // print_wire(init(32,i),"\n");
+   // print_wire(init(32,y),"\n");
+
    int i,j,s1,s2,it,jt;
    wire m1,m2;
    for (i=1; i<255; i++) {
@@ -71,24 +75,7 @@ int main(){
                         //       m2 = init(23,rand() >> 9);
                         //    }
                      }
-                     wire ax = concat3(init(1,s1),init(8,i),m1);
-                     // print_wire(ax,"\n");
-                     wire bx = concat3(init(1,s2),init(8,j),m2);
-                     // print_wire(bx,"\n");
-                     double a = bitstoreal(ax);
-                     // printf("%le\n",a);
-                     double b = bitstoreal(bx);
-                     // printf("%le\n",b);
-                     wire y = init(32,fadd(ax.val,bx.val));
-                     double fpu = bitstoreal(y);
-                     double ans = a+b;
-                     if(fpu-ans>=max3(fabs(a)*pow(2,-23),fabs(b)*pow(2,-23),pow(2,-126)) && fabs(ans)<pow(2,128)){
-                        print_wire(ax,"\n");
-                        print_wire(bx,"\n");
-                        print_wire(y,"\n");
-                        printf("fpu %le\n",fpu);
-                        printf("%le + %le = %le\n",a,b,ans);
-                     }
+                     long long int y = fsqrt(concat3(init(1,s1),init(8,i),m1).val);
                      // print_wire(init(32,y),"\n");
                   }
                }

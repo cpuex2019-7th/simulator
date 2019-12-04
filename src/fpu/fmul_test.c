@@ -3,13 +3,13 @@
 #include "fmul.h"
 
 int main(){
-   long long int i1,i2;
-   scanf("%lld",&i1);
-   scanf("%lld",&i2);
-   long long int y = fmul(i1,i2);
-   print_wire(init(32,i1),"\n");
-   print_wire(init(32,i2),"\n");
-   print_wire(init(32,y),"\n");
+   // long long int i1,i2;
+   // scanf("%lld",&i1);
+   // scanf("%lld",&i2);
+   // long long int y = fmul(i1,i2);
+   // print_wire(init(32,i1),"\n");
+   // print_wire(init(32,i2),"\n");
+   // print_wire(init(32,y),"\n");
    int i,j,s1,s2,it,jt;
    wire m1,m2;
    for (i=1; i<255; i++) {
@@ -76,7 +76,7 @@ int main(){
                         //       m2 = init(23,rand() >> 9);
                         //    }
                      }
-                     long long int y = fmul(concat(concat(init(1,s1),init(8,i)),m1).val,concat(concat(init(1,s2),init(8,j)),m2).val);
+                     long long int y = fmul(concat3(init(1,s1),init(8,i),m1).val,concat3(init(1,s2),init(8,j),m2).val);
                      // print_wire(init(32,y),"\n");
                   }
                }

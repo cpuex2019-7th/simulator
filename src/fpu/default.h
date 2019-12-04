@@ -19,3 +19,6 @@ int bitand(wire w);
 wire add(wire a, wire b, int l);
 wire sub(wire a, wire b, int l);
 wire mul(wire a, wire b, int l);
+double bitstoreal(wire w);
+double max(double a,double b);
+double max3(double a,double b,double c);
