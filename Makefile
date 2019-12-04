@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -Wall -O3
 LDFLAGS = -lm
-SRCS = $(wildcard *.c)
-OBJS = $(filter-out disasm.o sim.o, $(SRCS:.c=.o))
+SRCS = $(shell find . -type f -name "*.c")
+OBJS = $(shell find . -type f -name "*.c" | grep -v "_test" | grep -v "sim.c" | grep -v "disasm.c" | sed "s/\.c/\.o/")
 
 .PHONY: all
 
@@ -15,7 +15,7 @@ sim: $(OBJS) sim.o
 	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
 %.o: %.c
-	$(CC) $(CFLAGS) -c $^ 
+	$(CC) $(CFLAGS) -c $^ -o $@
 
 clean:
 	$(RM) $(OBJS) disasm.o sim.o disasm sim *~
