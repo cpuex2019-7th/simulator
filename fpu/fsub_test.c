@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include "default.h"
 #include "fsub.h"
 
@@ -17,8 +19,8 @@ int main(){
       for (j=1; j<255; j++) {
          for (s1=0; s1<2; s1++) {
             for (s2=0; s2<2; s2++) {
-               for (it=0; it<7; it++) {
-                  for (jt=0; jt<7; jt++) {
+               for (it=0; it<10; it++) {
+                  for (jt=0; jt<10; jt++) {
                      switch(it) {
                         case 0:
                            m1 = init(23,0);
@@ -77,8 +79,6 @@ int main(){
                               m2 = init(23,rand() >> 9);
                            }
                      }
-                     // long long int y = fsub(concat3(init(1,s1),init(8,i),m1).val,concat3(init(1,s2),init(8,j),m2).val);
-
                      wire ax = concat3(init(1,s1),init(8,i),m1);
                      wire bx = concat3(init(1,s2),init(8,j),m2);
                      wire y = init(32,fsub(ax.val,bx.val));
@@ -93,8 +93,6 @@ int main(){
                         printf("fpu %le\n",fpu);
                         printf("%le - %le = %le\n",a,b,ans);
                      }
-
-                     // print_wire(init(32,y),"\n");
                   }
                }
             }

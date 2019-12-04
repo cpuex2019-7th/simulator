@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
 #include "default.h"
 #include "fmul.h"
 
@@ -16,8 +18,8 @@ int main(){
       for (j=1; j<255; j++) {
          for (s1=0; s1<2; s1++) {
             for (s2=0; s2<2; s2++) {
-               for (it=0; it<7; it++) {
-                  for (jt=0; jt<7; jt++) {
+               for (it=0; it<10; it++) {
+                  for (jt=0; jt<10; jt++) {
                      switch(it) {
                         case 0:
                            m1 = init(23,0);
@@ -40,12 +42,12 @@ int main(){
                         case 6:
                            m1 = bitnot(init(23,0));
                            break;
-                        // default:
-                        //    if(i==256){
-                        //       m1 = init(23,0);
-                        //    }else{
-                        //       m1 = init(23,rand() >> 9);
-                        //    }
+                        default:
+                           if(i==256){
+                              m1 = init(23,0);
+                           }else{
+                              m1 = init(23,rand() >> 9);
+                           }
                      }
                      switch(jt) {
                         case 0:
@@ -69,15 +71,27 @@ int main(){
                         case 6:
                            m2 = bitnot(init(23,0));
                            break;
-                        // default:
-                        //    if(i==256){
-                        //       m2 = init(23,0);
-                        //    }else{
-                        //       m2 = init(23,rand() >> 9);
-                        //    }
+                        default:
+                           if(i==256){
+                              m2 = init(23,0);
+                           }else{
+                              m2 = init(23,rand() >> 9);
+                           }
                      }
-                     long long int y = fmul(concat3(init(1,s1),init(8,i),m1).val,concat3(init(1,s2),init(8,j),m2).val);
-                     // print_wire(init(32,y),"\n");
+                     wire ax = concat3(init(1,s1),init(8,i),m1);
+                     wire bx = concat3(init(1,s2),init(8,j),m2);
+                     wire y = init(32,fmul(ax.val,bx.val));
+                     double a = bitstoreal(ax);
+                     double b = bitstoreal(bx);
+                     double fpu = bitstoreal(y);
+                     double ans = a*b;
+                     if(fpu-ans>=max(fabs(ans)*pow(2,-22),pow(2,-126)) && fabs(ans)<pow(2,128)){
+                        print_wire(ax,"\n");
+                        print_wire(bx,"\n");
+                        print_wire(y,"\n");
+                        printf("fpu %le\n",fpu);
+                        printf("%le * %le = %le\n",a,b,ans);
+                     }
                   }
                }
             }

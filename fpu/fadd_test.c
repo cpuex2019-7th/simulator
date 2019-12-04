@@ -1,6 +1,6 @@
 #include <stdio.h>
-#include <math.h>
 #include <stdlib.h>
+#include <math.h>
 #include "default.h"
 #include "fadd.h"
 
@@ -84,9 +84,7 @@ int main(){
                         print_wire(y,"\n");
                         printf("fpu %le\n",fpu);
                         printf("%le + %le = %le\n",a,b,ans);
-                        printf("%le %le %le %le %le %le\n",fpu-ans,max3(fabs(a)*pow(2,-23),fabs(b)*pow(2,-23),pow(2,-126)),fabs(a)*pow(2,-23),fabs(b)*pow(2,-23),pow(2,-126),pow(2,128));
                      }
-                     // print_wire(init(32,y),"\n");
                   }
                }
             }
