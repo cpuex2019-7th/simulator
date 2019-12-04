@@ -5,6 +5,7 @@ typedef struct {
 
 wire init(int l,long long int v);
 wire concat(wire w1, wire w2);
+wire concat3(wire w1, wire w2, wire w3);
 wire extract(wire w, int s, int t);
 void print_wire(wire w,char* s);
 int eq(wire a,wire b);

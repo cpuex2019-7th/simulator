@@ -29,6 +29,10 @@ wire concat(wire a, wire b){
     return init(a.len+b.len,a.val+b.val);
 }
 
+wire concat3(wire a, wire b, wire c){
+    return concat(concat(a,b),c);
+}
+
 wire extract(wire w, int s, int t){
     int binary[64];
     dec2bin(w,binary);
