@@ -41,12 +41,12 @@ int main(){
                         case 6:
                            m1 = bitnot(init(23,0));
                            break;
-                        // default:
-                        //    if(i==256){
-                        //       m1 = init(23,0);
-                        //    }else{
-                        //       m1 = init(23,rand() >> 9);
-                        //    }
+                        default:
+                           if(i==256){
+                              m1 = init(23,0);
+                           }else{
+                              m1 = init(23,rand() >> 9);
+                           }
                      }
                      switch(jt) {
                         case 0:
@@ -70,14 +70,30 @@ int main(){
                         case 6:
                            m2 = bitnot(init(23,0));
                            break;
-                        // default:
-                        //    if(i==256){
-                        //       m2 = init(23,0);
-                        //    }else{
-                        //       m2 = init(23,rand() >> 9);
-                        //    }
+                        default:
+                           if(i==256){
+                              m2 = init(23,0);
+                           }else{
+                              m2 = init(23,rand() >> 9);
+                           }
                      }
-                     long long int y = fsub(concat3(init(1,s1),init(8,i),m1).val,concat3(init(1,s2),init(8,j),m2).val);
+                     // long long int y = fsub(concat3(init(1,s1),init(8,i),m1).val,concat3(init(1,s2),init(8,j),m2).val);
+
+                     wire ax = concat3(init(1,s1),init(8,i),m1);
+                     wire bx = concat3(init(1,s2),init(8,j),m2);
+                     wire y = init(32,fsub(ax.val,bx.val));
+                     double a = bitstoreal(ax);
+                     double b = bitstoreal(bx);
+                     double fpu = bitstoreal(y);
+                     double ans = a-b;
+                     if(fpu-ans>=max3(fabs(a)*pow(2,-23),fabs(b)*pow(2,-23),pow(2,-126)) && fabs(ans)<pow(2,128)){
+                        print_wire(ax,"\n");
+                        print_wire(bx,"\n");
+                        print_wire(y,"\n");
+                        printf("fpu %le\n",fpu);
+                        printf("%le - %le = %le\n",a,b,ans);
+                     }
+
                      // print_wire(init(32,y),"\n");
                   }
                }
