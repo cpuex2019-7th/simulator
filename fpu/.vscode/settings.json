@@ -1,0 +1,7 @@
+{
+    "files.associations": {
+        "default.h": "c",
+        "stdio.h": "c",
+        "fsqrt.h": "c"
+    }
+}

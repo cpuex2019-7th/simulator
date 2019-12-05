@@ -9,6 +9,11 @@
 #include "breakpoint.h"
 #include "stat.h"
 #include "signal.h"
+#include "fpu/fadd.h"
+#include "fpu/fsub.h"
+#include "fpu/fmul.h"
+#include "fpu/fdiv.h"
+#include "fpu/fsqrt.h"
 
 static execution_mode_t execution_mode = CONTINUOUS;
 
@@ -17,6 +22,19 @@ int srl(int x, int n) {
 }
 int sra(int x, int n) {
   return x < 0 && n > 0? x >> n | ~(~0U >> n): x >> n;
+}
+
+int get_lower(long long int v) {
+  union { long long int v; struct { int high, low; }; } converter;
+  converter.v = v;
+  return converter.high;
+}
+
+long long int emb_lower(int v) {
+  union { long long int v; struct { int high, low; }; } converter;
+  converter.high = v;
+  converter.low = 0;
+  return converter.v;
 }
 
 void exit_with_dinfo(state_t *state, int code){
@@ -203,9 +221,9 @@ void exec_stepi(state_t *state){
   case SB:
     if((srl(s_addr, 24)) != 0x7F){
       /*
-      debug("[*] Mem write (Byte): %02x to %08x\n",
-            state->reg[((instr_s_t *) instr)->rs2] & 0xFF,
-            s_addr);    
+        debug("[*] Mem write (Byte): %02x to %08x\n",
+        state->reg[((instr_s_t *) instr)->rs2] & 0xFF,
+        s_addr);    
       */
       write_mem(state, s_addr, state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
     } else {
@@ -235,9 +253,9 @@ void exec_stepi(state_t *state){
   case SH:
     if((srl(s_addr, 24)) != 0x7F){
       /*
-      debug("[*] Mem write (Half word): %04x to %08x\n",
-            state->reg[((instr_s_t *) instr)->rs2] & 0x00FF,
-            s_addr);
+        debug("[*] Mem write (Half word): %04x to %08x\n",
+        state->reg[((instr_s_t *) instr)->rs2] & 0x00FF,
+        s_addr);
       */
       write_mem(state, s_addr, state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
       write_mem(state, s_addr+1, srl((state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)), 8));
@@ -249,13 +267,13 @@ void exec_stepi(state_t *state){
   case SW:
     if((srl(s_addr, 24)) != 0x7F){
       /*
-      debug("[*] Mem write (Word): %08x to %08x (little endian: %02x %02x %02x %02x)\n",
-            state->reg[((instr_s_t *) instr)->rs2],
-            s_addr,
-            state->reg[((instr_s_t *) instr)->rs2] & 0b11111111,
-            srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8), 8),
-            srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16), 16),
-            srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24), 24));
+        debug("[*] Mem write (Word): %08x to %08x (little endian: %02x %02x %02x %02x)\n",
+        state->reg[((instr_s_t *) instr)->rs2],
+        s_addr,
+        state->reg[((instr_s_t *) instr)->rs2] & 0b11111111,
+        srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8), 8),
+        srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 16), 16),
+        srl(state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 24), 24));
       */
       write_mem(state, s_addr, state->reg[((instr_s_t *) instr)->rs2] & 0b11111111);
       write_mem(state, s_addr+1, srl((state->reg[((instr_s_t *) instr)->rs2] & (0b11111111 << 8)), 8));
@@ -435,13 +453,13 @@ void exec_stepi(state_t *state){
   case FSW:
     if((srl(s_addr, 24)) != 0x7F){
       /*
-      debug("[*] Mem write (Float Word): %08x to %08x (little endian: %02x %02x %02x %02x)\n",
-            state->freg[((instr_s_t *) instr)->rs2],
-            s_addr,
-            state->freg[((instr_s_t *) instr)->rs2].i & 0b11111111,
-            srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)), 8),
-            srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)), 16),
-            srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)), 24));
+        debug("[*] Mem write (Float Word): %08x to %08x (little endian: %02x %02x %02x %02x)\n",
+        state->freg[((instr_s_t *) instr)->rs2],
+        s_addr,
+        state->freg[((instr_s_t *) instr)->rs2].i & 0b11111111,
+        srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)), 8),
+        srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 16)), 16),
+        srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 24)), 24));
       */
       write_mem(state, s_addr, state->freg[((instr_s_t *) instr)->rs2].i & 0b11111111);
       write_mem(state, s_addr+1, srl((state->freg[((instr_s_t *) instr)->rs2].i & (0b11111111 << 8)), 8));
@@ -462,30 +480,44 @@ void exec_stepi(state_t *state){
               ((instr_r_t *) instr)->rd,
               ((freg_float)state->freg[((instr_r_t *) instr)->rs1]).i);
     break;
-  case FADDS:
+  case FADDS:    
     write_freg(state,
                ((instr_r_t *) instr)->rd,
-               state->freg[((instr_r_t *) instr)->rs1].f + state->freg[((instr_r_t *) instr)->rs2].f);
+               ((freg_float) get_lower(fadd(emb_lower(state->freg[((instr_r_t *) instr)->rs1].i),
+                                            emb_lower(state->freg[((instr_r_t *) instr)->rs2].i)))).f);
     break;
   case FSUBS:
     write_freg(state,
                ((instr_r_t *) instr)->rd,
-               state->freg[((instr_r_t *) instr)->rs1].f - state->freg[((instr_r_t *) instr)->rs2].f);
+               ((freg_float) get_lower(fsub(emb_lower(state->freg[((instr_r_t *) instr)->rs1].i),
+                                            emb_lower(state->freg[((instr_r_t *) instr)->rs2].i)))).f);
     break;
   case FMULS:
+    /*
     write_freg(state,
                ((instr_r_t *) instr)->rd,
                state->freg[((instr_r_t *) instr)->rs1].f * state->freg[((instr_r_t *) instr)->rs2].f);
-    break;
-  case FDIVS:
+    */
     write_freg(state,
                ((instr_r_t *) instr)->rd,
-               state->freg[((instr_r_t *) instr)->rs1].f / state->freg[((instr_r_t *) instr)->rs2].f);
+               ((freg_float) get_lower(fmul(emb_lower(state->freg[((instr_r_t *) instr)->rs1].i),
+                                            emb_lower(state->freg[((instr_r_t *) instr)->rs2].i)))).f);
+    break;    
+  case FDIVS:    
+    write_freg(state,
+               ((instr_r_t *) instr)->rd,
+               ((freg_float) get_lower(fdiv(emb_lower(state->freg[((instr_r_t *) instr)->rs1].i),
+                                            emb_lower(state->freg[((instr_r_t *) instr)->rs2].i)))).f);
     break;
   case FSQRTS:
     write_freg(state,
                ((instr_r_t *) instr)->rd,
+               ((freg_float) get_lower(fsqrt(emb_lower(state->freg[((instr_r_t *) instr)->rs1].i)))).f);
+    /*
+    write_freg(state,
+               ((instr_r_t *) instr)->rd,
                sqrtf(state->freg[((instr_r_t *) instr)->rs1].f));
+    */
     break;
   case FEQS:
     write_reg(state,
