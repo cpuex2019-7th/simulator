@@ -13,6 +13,7 @@
 #include "fpu/fsub.h"
 #include "fpu/fmul.h"
 #include "fpu/fdiv.h"
+#include "fpu/fsqrt.h"
 
 static execution_mode_t execution_mode = CONTINUOUS;
 
@@ -492,31 +493,31 @@ void exec_stepi(state_t *state){
                                             emb_lower(state->freg[((instr_r_t *) instr)->rs2].i)))).f);
     break;
   case FMULS:
+    /*
     write_freg(state,
                ((instr_r_t *) instr)->rd,
                state->freg[((instr_r_t *) instr)->rs1].f * state->freg[((instr_r_t *) instr)->rs2].f);
-    /*
+    */
     write_freg(state,
                ((instr_r_t *) instr)->rd,
                ((freg_float) get_lower(fmul(emb_lower(state->freg[((instr_r_t *) instr)->rs1].i),
                                             emb_lower(state->freg[((instr_r_t *) instr)->rs2].i)))).f);
-    */
     break;    
   case FDIVS:    
     write_freg(state,
                ((instr_r_t *) instr)->rd,
-               state->freg[((instr_r_t *) instr)->rs1].f / state->freg[((instr_r_t *) instr)->rs2].f);
-    /*
-    write_freg(state,
-               ((instr_r_t *) instr)->rd,
                ((freg_float) get_lower(fdiv(emb_lower(state->freg[((instr_r_t *) instr)->rs1].i),
                                             emb_lower(state->freg[((instr_r_t *) instr)->rs2].i)))).f);
-    */
     break;
   case FSQRTS:
     write_freg(state,
                ((instr_r_t *) instr)->rd,
+               ((freg_float) get_lower(fsqrt(emb_lower(state->freg[((instr_r_t *) instr)->rs1].i)))).f);
+    /*
+    write_freg(state,
+               ((instr_r_t *) instr)->rd,
                sqrtf(state->freg[((instr_r_t *) instr)->rs1].f));
+    */
     break;
   case FEQS:
     write_reg(state,
